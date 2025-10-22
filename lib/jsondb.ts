@@ -42,8 +42,23 @@ export interface JSONDB {
 }
 
 function getDbPath() {
-  // DATA/DB.json dentro del proyecto (respeta mayúsculas)
-  const p = process.env.DB_JSON || path.join(process.cwd(), 'DATA', 'DB.json');
+  // Priority: explicit env var -> writable tmp on Vercel (ephemeral) -> local DATA/DB.json
+  if (process.env.DB_JSON) {
+    const p = process.env.DB_JSON;
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    return p;
+  }
+
+  const isVercel = !!process.env.VERCEL;
+  if (isVercel) {
+    // Vercel serverless filesystem is mostly read-only; use /tmp which is writable but ephemeral
+    const dir = path.join('/tmp', 'data');
+    fs.mkdirSync(dir, { recursive: true });
+    return path.join(dir, 'DB.json');
+  }
+
+  // Default local path for development
+  const p = path.join(process.cwd(), 'DATA', 'DB.json');
   fs.mkdirSync(path.dirname(p), { recursive: true });
   return p;
 }
