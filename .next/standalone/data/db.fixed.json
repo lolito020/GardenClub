@@ -1,0 +1,4391 @@
+{
+  "members": [
+    {
+      "id": "m1",
+      "codigo": "1",
+      "nombres": "Juan Carlos",
+      "apellidos": "Pérez López",
+      "ci": "1234567",
+      "ruc": "1234567-8",
+      "categoria": "Familiar",
+      "subcategoria": "Socio",
+      "direccion": "Av. España 1234, Asunción",
+      "telefono": "021-123456",
+      "celular": "0981-123456",
+      "email": "juan.perez@email.com",
+      "nacimiento": "1980-05-15",
+      "nacionalidad": "Paraguaya",
+      "datosLaborales": "Contador - Empresa ABC",
+      "alta": "2024-01-15",
+      "estado": "AL_DIA",
+      "servicios": [
+        "s1",
+        "s3",
+        "s5"
+      ],
+      "observaciones": "Socio fundador",
+      "foto": "/uploads/1758157306620-AG7sGfo4.png"
+    },
+    {
+      "id": "m2",
+      "codigo": "2",
+      "nombres": "Ana María",
+      "apellidos": "Gómez Silva",
+      "ci": "2345678",
+      "categoria": "Familiar",
+      "subcategoria": "Socio Vitalicio",
+      "direccion": "Calle Real 567, Luque",
+      "telefono": "021-654321",
+      "celular": "0985-654321",
+      "email": "ana.gomez@email.com",
+      "nacimiento": "1975-08-22",
+      "nacionalidad": "Paraguaya",
+      "alta": "2024-02-01",
+      "estado": "AL_DIA",
+      "servicios": [
+        "s1"
+      ],
+      "familiaId": "fam-001"
+    },
+    {
+      "id": "m3",
+      "codigo": "3",
+      "nombres": "Roberto",
+      "apellidos": "Martínez",
+      "ci": "3456789",
+      "categoria": "Individual",
+      "subcategoria": "Socio",
+      "direccion": "Barrio San Vicente, Capiatá",
+      "telefono": "021-789123",
+      "celular": "0987-789123",
+      "email": "roberto.martinez@email.com",
+      "nacimiento": "1985-12-10",
+      "nacionalidad": "Paraguaya",
+      "alta": "2024-03-01",
+      "estado": "ATRASADO",
+      "servicios": [
+        "s1",
+        "s4"
+      ]
+    },
+    {
+      "id": "yzpuKIpCt4X4nhQ3mn5gI",
+      "codigo": "4",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "Amelia",
+      "apellidos": "Gonzalez",
+      "ci": "6276293",
+      "telefono": "0984701442",
+      "email": "amelia.ag987@gmail.com",
+      "categoria": "Individual",
+      "subcategoria": "Socio",
+      "alta": "2025-09-26",
+      "ruc": ""
+    },
+    {
+      "id": "FSsuy6FrXufXlW_W5lrjv",
+      "codigo": "NS907473",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "Josemaria",
+      "apellidos": "Maciel",
+      "ci": "3618109",
+      "telefono": "0982349328",
+      "email": "josemacielinho123@gmail.com",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    },
+    {
+      "id": "oYTW9MAhYxKbDXqqD0PVp",
+      "codigo": "NS933652",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "Sebastian",
+      "apellidos": "Maciel",
+      "ci": "5217674",
+      "telefono": "0982770914",
+      "email": "sebas.maciel@hotmail.com",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    },
+    {
+      "id": "aRSRk0jGFshkZQKnZTU_W",
+      "codigo": "NS268490",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "Juan",
+      "apellidos": "luis",
+      "ci": "123456",
+      "telefono": "",
+      "email": "",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    },
+    {
+      "id": "QgtAmIcvE7h93XOFFcU1T",
+      "codigo": "NS278622",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "juan perez",
+      "apellidos": "adsad",
+      "ci": "545",
+      "telefono": "",
+      "email": "",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    },
+    {
+      "id": "FGGGePuHX0-D2nxwodiJC",
+      "codigo": "NS287085",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "pupo",
+      "apellidos": "pou",
+      "ci": "1564",
+      "telefono": "",
+      "email": "",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    },
+    {
+      "id": "aYbSzOn3UOwtPXnU1qwUj",
+      "codigo": "NS311923",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "asdasd",
+      "apellidos": "asdas",
+      "ci": "12321231",
+      "telefono": "",
+      "email": "",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    },
+    {
+      "id": "pQ26_1NwCH6XR-z2_57ZP",
+      "codigo": "NS318781",
+      "estado": "ACTIVO",
+      "servicios": [],
+      "nombres": "asdas",
+      "apellidos": "dasdd",
+      "ci": "99",
+      "telefono": "",
+      "email": "",
+      "categoria": "CLIENTE",
+      "subcategoria": "NO SOCIO",
+      "alta": "2025-09-28",
+      "ruc": ""
+    }
+  ],
+  "payments": [
+    {
+      "id": "PAY-000053",
+      "memberId": "m1",
+      "fecha": "2025-11-01",
+      "monto": 220000,
+      "concepto": "Pago contado: VOLLEY, NATACION COMPETITIVA",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "Pagos varios",
+      "numeroRecibo": "12346",
+      "allocations": [
+        {
+          "debitId": "MOV-000046",
+          "amount": 120000
+        },
+        {
+          "debitId": "MOV-000047",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000059",
+      "memberId": "m1",
+      "fecha": "2025-11-01",
+      "monto": 648500,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 648500
+        }
+      ]
+    },
+    {
+      "id": "PAY-000049",
+      "memberId": "m1",
+      "fecha": "2025-10-30",
+      "monto": 30000,
+      "concepto": "Pago parcial: Cuota Social Mensual",
+      "formaPago": "TRANSFERENCIA",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "Comprobante nro 0321649",
+      "allocations": [
+        {
+          "debitId": "MOV-000042",
+          "amount": 30000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000062",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000051",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000063",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000052",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000064",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 150000,
+      "concepto": "Pago contado: Cuota Social Mensual",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "412346",
+      "allocations": [
+        {
+          "debitId": "MOV-000053",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000065",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 200000,
+      "concepto": "Pago de 2 débitos pendientes",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "013246",
+      "allocations": [
+        {
+          "debitId": "MOV-000049",
+          "amount": 100000
+        },
+        {
+          "debitId": "MOV-000050",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000066",
+      "memberId": "m3",
+      "fecha": "2025-09-26",
+      "monto": 13500000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "01023",
+      "allocations": [
+        {
+          "debitId": "MOV-000005",
+          "amount": 13500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000057",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "monto": 50000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "1",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 50000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000058",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "monto": 1500,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "111",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 1500
+        }
+      ]
+    },
+    {
+      "id": "PAY-000060",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "monto": 2100,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000042",
+          "amount": 2100
+        }
+      ]
+    },
+    {
+      "id": "PAY-000061",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000048",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000052",
+      "memberId": "m1",
+      "fecha": "2025-09-24",
+      "monto": 100000,
+      "concepto": "Pago parcial: QUINCHO CENTRAL",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "0012346",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000046",
+      "memberId": "VRQgt4Sz_THJGFcGIzh7X",
+      "fecha": "2025-09-23",
+      "monto": 1200000,
+      "concepto": "Pago contado de servicios",
+      "formaPago": "tarjeta",
+      "cobradorId": "c1",
+      "observaciones": "Hydrogym",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000039",
+          "amount": 1200000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000048",
+      "memberId": "m1",
+      "fecha": "2025-09-22",
+      "monto": 120000,
+      "concepto": "Pago contado: Natación",
+      "formaPago": "TRANSFERENCIA",
+      "cobradorId": "",
+      "observaciones": "Inscripcion tenis",
+      "numeroRecibo": "Banco Itaul Nro. 0032164649",
+      "allocations": [
+        {
+          "debitId": "MOV-000041",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000021",
+      "memberId": "m3",
+      "fecha": "2025-09-20",
+      "monto": 1000000,
+      "concepto": "Cuota de ingreso",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "Pago a cuenta",
+      "numeroRecibo": "1234564",
+      "allocations": [
+        {
+          "debitId": "MOV-000005",
+          "amount": 1000000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000013",
+      "memberId": "m3",
+      "fecha": "2025-09-18",
+      "monto": 500000,
+      "concepto": "Cuota de Ingreso",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "Anticipo a cuenta del ingreso anual",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000005",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000005",
+      "memberId": "m3",
+      "fecha": "2025-09-16",
+      "monto": 5000000,
+      "concepto": "Cuota de Ingreso",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": ""
+    },
+    {
+      "id": "PAY-000050",
+      "memberId": "m1",
+      "fecha": "2025-09-15",
+      "monto": 60000,
+      "concepto": "Pago contado: BASQUET",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "Se pago en efectivo",
+      "allocations": [
+        {
+          "debitId": "MOV-000043",
+          "amount": 60000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000051",
+      "memberId": "m1",
+      "fecha": "2025-09-15",
+      "monto": 100000,
+      "concepto": "Pago contado: NATACION",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000044",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000047",
+      "memberId": "m1",
+      "fecha": "2025-09-01",
+      "monto": 150000,
+      "concepto": "Pago contado: Cuota Social Mensual",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "Pago cuota de mantenimiento mes de setiembre",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000040",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000071",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000059",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000072",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "111",
+      "allocations": [
+        {
+          "debitId": "MOV-000060",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000073",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000061",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000074",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "monto": 800000,
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000062",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000075",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "1234",
+      "allocations": [
+        {
+          "debitId": "MOV-000063",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000076",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000064",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000077",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "1",
+      "allocations": [
+        {
+          "debitId": "MOV-000065",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000078",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "123456",
+      "allocations": [
+        {
+          "debitId": "MOV-000066",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000079",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "123456",
+      "allocations": [
+        {
+          "debitId": "MOV-000067",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000080",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000068",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000081",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000069",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000082",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000070",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000083",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000071",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000084",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000072",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000085",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "efectivo",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000073",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000086",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000074",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000087",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000075",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000088",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-09-30",
+      "monto": 2250000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "0012364",
+      "allocations": []
+    },
+    {
+      "id": "PAY-000089",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-09-30",
+      "monto": 2250000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": []
+    },
+    {
+      "id": "PAY-000096",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "monto": 20000,
+      "concepto": "Pago parcial: BASQUET",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000082",
+          "amount": 20000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000097",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-01",
+      "monto": 800000,
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000083",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000098",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02",
+      "monto": 400000,
+      "concepto": "Pago parcial: Tenis, Alquiler Salón Social",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "001",
+      "allocations": [
+        {
+          "debitId": "MOV-000084",
+          "amount": 100000
+        },
+        {
+          "debitId": "MOV-000085",
+          "amount": 300000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000099",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "1",
+      "allocations": [
+        {
+          "debitId": "MOV-000086",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000100",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "monto": 1300000,
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "12345",
+      "allocations": [
+        {
+          "debitId": "MOV-000088",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000089",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000101",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "monto": 1300000,
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "12345",
+      "allocations": [
+        {
+          "debitId": "MOV-000090",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000091",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000102",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "monto": 1300000,
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "12345",
+      "allocations": [
+        {
+          "debitId": "MOV-000092",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000093",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000103",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "monto": 1300000,
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "12345",
+      "allocations": [
+        {
+          "debitId": "MOV-000094",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000095",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000104",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "monto": 800000,
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "12345",
+      "allocations": [
+        {
+          "debitId": "MOV-000096",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000105",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "monto": 1300000,
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "observaciones": "",
+      "numeroRecibo": "12345",
+      "allocations": [
+        {
+          "debitId": "MOV-000097",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000098",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000106",
+      "memberId": "m3",
+      "fecha": "2025-10-02",
+      "monto": 900000,
+      "concepto": "Pago contado: Alquiler Salón Social, Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c2",
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000099",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000100",
+          "amount": 100000
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "id": "s1",
+      "nombre": "Cuota Social Mensual",
+      "descripcion": "Cuota mensual obligatoria para todos los socios",
+      "precio": 150000,
+      "tipo": "MENSUAL",
+      "obligatorio": true,
+      "aplicaA": [
+        "Socio",
+        "Socio Patrimonial"
+      ],
+      "activo": true,
+      "categoria": "Otros",
+      "precioSocio": 150000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "s2",
+      "nombre": "Cuota de Ingreso",
+      "descripcion": "Pago único al ingresar como socio",
+      "precio": 15000000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [
+        "Socio"
+      ],
+      "activo": true,
+      "socios": true,
+      "noSocios": false,
+      "categoria": "OTROS",
+      "precioSocio": 15000000,
+      "precioNoSocio": 15000000
+    },
+    {
+      "id": "s3",
+      "nombre": "Natación",
+      "descripcion": "Clases de natación mensuales",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "comisionCobrador": 12,
+      "activo": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 120000,
+      "permiteAgendamiento": true
+    },
+    {
+      "id": "s4",
+      "nombre": "Tenis",
+      "descripcion": "Clases de tenis mensuales",
+      "precio": 100000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "comisionCobrador": 12,
+      "activo": true,
+      "precioSocio": 100000,
+      "precioNoSocio": 100000,
+      "permiteAgendamiento": true,
+      "aplicaA": [],
+      "categoria": "Deportes",
+      "socios": true,
+      "noSocios": false,
+      "espacios": [
+        "Tenis 1",
+        "Tenis 2"
+      ]
+    },
+    {
+      "id": "s5",
+      "nombre": "Alquiler Salón Social",
+      "descripcion": "Alquiler del salón para eventos",
+      "precio": 800000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "activo": true,
+      "precioSocio": 800000,
+      "precioNoSocio": 800000,
+      "permiteAgendamiento": true,
+      "aplicaA": [],
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": false,
+      "permiteHorasExtras": true,
+      "precioHoraExtra": 500000,
+      "espacios": []
+    },
+    {
+      "id": "srv-1758646234537-el9319blp",
+      "nombre": "ADHESION",
+      "descripcion": "Servicio ADHESION",
+      "precio": 50000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": false,
+      "precioSocio": 50000,
+      "precioNoSocio": 50000
+    },
+    {
+      "id": "srv-1758646234537-uebnwdlwc",
+      "nombre": "BASQUET",
+      "descripcion": "Servicio BASQUET",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234537-if8ix3wwt",
+      "nombre": "SALON CASCADA",
+      "descripcion": "Servicio SALON CASCADA",
+      "precio": 1000000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 1000000,
+      "precioNoSocio": 1200000,
+      "permiteAgendamiento": true
+    },
+    {
+      "id": "srv-1758646234537-ki5qchgb1",
+      "nombre": "CUOTA DE SOCIAL",
+      "descripcion": "Servicio CUOTA DE SOCIAL",
+      "precio": 150000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": false,
+      "precioSocio": 150000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234538-qsrprkzmv",
+      "nombre": "FOTO CARNET",
+      "descripcion": "Servicio FOTO CARNET",
+      "precio": 25000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": false,
+      "precioSocio": 25000,
+      "precioNoSocio": 25000
+    },
+    {
+      "id": "srv-1758646234538-m57iubgt1",
+      "nombre": "HIDROGYM",
+      "descripcion": "Servicio HIDROGYM",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234538-1vbx98al1",
+      "nombre": "INGRESOS DEPORTIVOS NO SOCIOS",
+      "descripcion": "Servicio INGRESOS DEPORTIVOS NO SOCIOS",
+      "precio": 100000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": false,
+      "noSocios": true,
+      "precioSocio": null,
+      "precioNoSocio": 100000
+    },
+    {
+      "id": "srv-1758646234538-3eijznqxp",
+      "nombre": "INGRESOS POR FESTIVALES",
+      "descripcion": "Servicio INGRESOS POR FESTIVALES",
+      "precio": 100000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 80000,
+      "precioNoSocio": 100000
+    },
+    {
+      "id": "srv-1758646234538-6qdc4irpr",
+      "nombre": "NATACION COMPETITIVA",
+      "descripcion": "Servicio NATACION COMPETITIVA",
+      "precio": 100000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 100000,
+      "precioNoSocio": 130000
+    },
+    {
+      "id": "srv-1758646234538-w4qqepwj4",
+      "nombre": "NATACION",
+      "descripcion": "Servicio NATACION",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234538-pvrbvadb8",
+      "nombre": "QUINCHO CENTRAL",
+      "descripcion": "Servicio QUINCHO CENTRAL",
+      "precio": 800000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 800000,
+      "precioNoSocio": 1000000
+    },
+    {
+      "id": "srv-1758646234538-but12xkgz",
+      "nombre": "QUINCHO CHICO",
+      "descripcion": "Servicio QUINCHO CHICO",
+      "precio": 800000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 800000,
+      "precioNoSocio": 1000000
+    },
+    {
+      "id": "srv-1758646234538-h90cv603b",
+      "nombre": "VOLLEY",
+      "descripcion": "Servicio VOLLEY",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "s_diario_O1a0obmE",
+      "nombre": "INGRESO DIARIO PILETA",
+      "descripcion": "Acceso diario a la pileta para no-socios",
+      "precio": 15000,
+      "precioSocio": 10000,
+      "precioNoSocio": 15000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Deportes",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 5
+    },
+    {
+      "id": "s_diario_66Vqnebb",
+      "nombre": "INGRESO DIARIO GIMNASIO",
+      "descripcion": "Acceso diario al gimnasio",
+      "precio": 20000,
+      "precioSocio": 15000,
+      "precioNoSocio": 20000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Deportes",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 5
+    },
+    {
+      "id": "s_diario_NT3GXqI4",
+      "nombre": "ESTACIONAMIENTO DIARIO",
+      "descripcion": "Estacionamiento por día",
+      "precio": 8000,
+      "precioSocio": 5000,
+      "precioNoSocio": 8000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Servicios",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 0
+    },
+    {
+      "id": "s_diario_Aj9zmftZ",
+      "nombre": "ALQUILER CANCHA TENIS DIA",
+      "descripcion": "Alquiler de cancha de tenis por día",
+      "precio": 50000,
+      "precioSocio": 40000,
+      "precioNoSocio": 50000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Alquileres",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 8,
+      "aplicaA": [],
+      "permiteAgendamiento": true
+    },
+    {
+      "id": "tE5UeE4TV-h-o0TAWs_U1",
+      "nombre": "Horas Extras",
+      "descripcion": "",
+      "precio": 0,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [
+        "Socio",
+        "Socio Patrimonial",
+        "Socio Vitalicio"
+      ],
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": true,
+      "permiteAgendamiento": false,
+      "permiteHorasExtras": false
+    }
+  ],
+  "users": [
+    {
+      "id": "u1",
+      "email": "admin@gardenclub.py",
+      "nombre": "Administrador",
+      "rol": "admin",
+      "passwordHash": "$2a$10$zBgDB9kmvqU8SijdllvzleDLKZ3Lik.56lGG6kB/fWO3DVbZPMRYi",
+      "activo": true,
+      "fechaCreacion": "2025-09-16T02:06:24.318Z"
+    },
+    {
+      "id": "u2",
+      "email": "caja@gardenclub.py",
+      "nombre": "Usuario Caja",
+      "rol": "caja",
+      "passwordHash": "$2a$10$lurEB4LXeQUVCqxjphGHLOuztaUQeIgYKcljW1kidU3gagbsvkIwm",
+      "activo": true,
+      "fechaCreacion": "2025-09-16T02:06:24.502Z"
+    },
+    {
+      "id": "u3",
+      "email": "porteria@gardenclub.py",
+      "nombre": "Portero",
+      "rol": "porteria",
+      "passwordHash": "$2a$10$vQtcPSE.M3HJP5iikSSJyeA9ldCM3j3N2INwI4DbLJWVNIjQC/IEO",
+      "activo": true,
+      "fechaCreacion": "2025-09-16T02:06:24.686Z"
+    }
+  ],
+  "collectors": [
+    {
+      "id": "c1",
+      "codigo": "COB-001",
+      "nombres": "María",
+      "apellidos": "González",
+      "ci": "3456789",
+      "telefono": "0981-123456",
+      "celular": "0981-123456",
+      "direccion": "Asunción",
+      "email": "maria.gonzalez@email.com",
+      "formaPago": "transferencia",
+      "cuentaBanco": "1234567890",
+      "activo": true,
+      "fechaIngreso": "2024-01-15"
+    },
+    {
+      "id": "c2",
+      "codigo": "COB-002",
+      "nombres": "Carlos",
+      "apellidos": "Rodríguez",
+      "ci": "4567890",
+      "telefono": "0985-654321",
+      "celular": "0985-654321",
+      "direccion": "Luque",
+      "email": "carlos.rodriguez@email.com",
+      "formaPago": "efectivo",
+      "activo": true,
+      "fechaIngreso": "2024-02-01"
+    }
+  ],
+  "families": [
+    {
+      "id": "f1",
+      "grupoFamiliarId": "fam-001",
+      "socioTitularId": "m2",
+      "nombres": "Pedro",
+      "apellidos": "Gómez Silva",
+      "ci": "2345679",
+      "parentesco": "Esposo",
+      "nacimiento": "1973-03-15",
+      "telefono": "0985-654322",
+      "email": "pedro.gomez@email.com",
+      "activo": true
+    },
+    {
+      "id": "f2",
+      "grupoFamiliarId": "fam-001",
+      "socioTitularId": "m2",
+      "nombres": "Sofía",
+      "apellidos": "Gómez Silva",
+      "ci": "2345680",
+      "parentesco": "Hija",
+      "nacimiento": "2005-07-20",
+      "activo": true
+    },
+    {
+      "id": "BSWKW51t1cf7vVd7njyAH",
+      "grupoFamiliarId": "FAM-7b2M",
+      "socioTitularId": "m1",
+      "nombres": "Josemaria",
+      "apellidos": "Maciel",
+      "ci": "3618109",
+      "parentesco": "Hijo/a",
+      "activo": true,
+      "fechaCreacion": "2025-09-22T14:08:20.646Z"
+    }
+  ],
+  "financing": [],
+  "commissionPayments": [],
+  "movements": [
+    {
+      "id": "MOV-000005",
+      "memberId": "m3",
+      "fecha": "2025-09-16",
+      "concepto": "Cuota de Ingreso (ANUAL)",
+      "tipo": "DEBE",
+      "monto": 15000000,
+      "origen": "SERVICIO",
+      "refId": "s2",
+      "observaciones": "",
+      "createdAt": "2025-09-16T17:05:29.172Z",
+      "paidAmount": 15000000,
+      "allocations": [
+        {
+          "paymentId": "PAY-000013",
+          "creditMovementId": "4WqZyxNvBEyX718vVJfO0",
+          "amount": 500000
+        },
+        {
+          "paymentId": "PAY-000021",
+          "creditMovementId": "Seejyg3PEGIOS1w2CoMjp",
+          "amount": 1000000
+        },
+        {
+          "paymentId": "PAY-000066",
+          "creditMovementId": "4Vg251CHrBl0D0OWkCaWT",
+          "amount": 13500000
+        }
+      ],
+      "status": "CANCELADO"
+    },
+    {
+      "id": "AOR8E-4XjNc7Vist7syhU",
+      "memberId": "m3",
+      "fecha": "2025-09-16T00:00:00.000Z",
+      "concepto": "Cuota de Ingreso",
+      "tipo": "CREDIT",
+      "monto": 5000000,
+      "origen": "PAGO",
+      "refId": "PAY-000005"
+    },
+    {
+      "id": "4WqZyxNvBEyX718vVJfO0",
+      "memberId": "m3",
+      "fecha": "2025-09-18T00:00:00.000Z",
+      "concepto": "Cuota de Ingreso",
+      "tipo": "CREDIT",
+      "monto": 500000,
+      "origen": "PAGO",
+      "refId": "PAY-000013",
+      "allocations": [
+        {
+          "debitId": "MOV-000005",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "Seejyg3PEGIOS1w2CoMjp",
+      "memberId": "m3",
+      "fecha": "2025-09-20T00:00:00.000Z",
+      "concepto": "Cuota de ingreso",
+      "tipo": "CREDIT",
+      "monto": 1000000,
+      "origen": "PAGO",
+      "refId": "PAY-000021",
+      "allocations": [
+        {
+          "debitId": "MOV-000005",
+          "amount": 1000000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000039",
+      "memberId": "VRQgt4Sz_THJGFcGIzh7X",
+      "fecha": "2025-09-23T00:00:00.000Z",
+      "concepto": "SALON CASCADA",
+      "tipo": "DEBIT",
+      "monto": 1200000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234537-if8ix3wwt",
+      "observaciones": "Cobro contado - tarjeta",
+      "vencimiento": "2025-09-23T00:00:00.000Z",
+      "createdAt": "2025-09-23T20:54:13.045Z",
+      "paidAmount": 1200000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000046",
+          "creditMovementId": "6KS2tn_5myxmAzPQlj7b4",
+          "amount": 1200000
+        }
+      ]
+    },
+    {
+      "id": "6KS2tn_5myxmAzPQlj7b4",
+      "memberId": "VRQgt4Sz_THJGFcGIzh7X",
+      "fecha": "2025-09-23T00:00:00.000Z",
+      "concepto": "Pago contado de servicios",
+      "tipo": "CREDIT",
+      "monto": 1200000,
+      "origen": "PAGO",
+      "refId": "PAY-000046",
+      "allocations": [
+        {
+          "debitId": "MOV-000039",
+          "amount": 1200000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000040",
+      "memberId": "m1",
+      "fecha": "2025-09-01T00:00:00.000Z",
+      "concepto": "Cuota Social Mensual (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 150000,
+      "origen": "SERVICIO",
+      "refId": "s1",
+      "observaciones": "Pago cuota de mantenimiento mes de setiembre",
+      "vencimiento": "2025-09-30T00:00:00.000Z",
+      "createdAt": "2025-09-24T01:20:36.097Z",
+      "paidAmount": 150000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000047",
+          "creditMovementId": "nbAmoBcVghKgiLl_6impT",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "nbAmoBcVghKgiLl_6impT",
+      "memberId": "m1",
+      "fecha": "2025-09-01T00:00:00.000Z",
+      "concepto": "Pago contado: Cuota Social Mensual",
+      "tipo": "CREDIT",
+      "monto": 150000,
+      "origen": "PAGO",
+      "refId": "PAY-000047",
+      "allocations": [
+        {
+          "debitId": "MOV-000040",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000041",
+      "memberId": "m1",
+      "fecha": "2025-09-22T00:00:00.000Z",
+      "concepto": "Natación (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 120000,
+      "origen": "SERVICIO",
+      "refId": "s3",
+      "observaciones": "Inscripcion tenis",
+      "vencimiento": "2025-10-24T00:00:00.000Z",
+      "createdAt": "2025-09-24T01:21:46.986Z",
+      "paidAmount": 120000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000048",
+          "creditMovementId": "isD_cHIWEkzLCfshoAjPm",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "isD_cHIWEkzLCfshoAjPm",
+      "memberId": "m1",
+      "fecha": "2025-09-22T00:00:00.000Z",
+      "concepto": "Pago contado: Natación",
+      "tipo": "CREDIT",
+      "monto": 120000,
+      "origen": "PAGO",
+      "refId": "PAY-000048",
+      "allocations": [
+        {
+          "debitId": "MOV-000041",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000042",
+      "memberId": "m1",
+      "fecha": "2025-10-30T00:00:00.000Z",
+      "concepto": "Cuota Social Mensual (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 150000,
+      "origen": "SERVICIO",
+      "refId": "s1",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-24T00:00:00.000Z",
+      "createdAt": "2025-09-24T01:23:55.924Z",
+      "paidAmount": 32100,
+      "status": "REFINANCIADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000049",
+          "creditMovementId": "B9e7pZ7B1mb4VlmqtCbzL",
+          "amount": 30000
+        },
+        {
+          "paymentId": "PAY-000060",
+          "creditMovementId": "c4TvEmmw5KBrqG93v0w8R",
+          "amount": 2100
+        }
+      ],
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "updatedAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "B9e7pZ7B1mb4VlmqtCbzL",
+      "memberId": "m1",
+      "fecha": "2025-10-30T00:00:00.000Z",
+      "concepto": "Pago parcial: Cuota Social Mensual",
+      "tipo": "CREDIT",
+      "monto": 30000,
+      "origen": "PAGO",
+      "refId": "PAY-000049",
+      "allocations": [
+        {
+          "debitId": "MOV-000042",
+          "amount": 30000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000043",
+      "memberId": "m1",
+      "fecha": "2025-09-15T00:00:00.000Z",
+      "concepto": "BASQUET (DIARIO)",
+      "tipo": "DEBIT",
+      "monto": 60000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234537-uebnwdlwc",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-09-30T00:00:00.000Z",
+      "createdAt": "2025-09-24T01:25:18.256Z",
+      "paidAmount": 60000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000050",
+          "creditMovementId": "cyhiUs-RyJtInS_Q2FCNW",
+          "amount": 60000
+        }
+      ]
+    },
+    {
+      "id": "cyhiUs-RyJtInS_Q2FCNW",
+      "memberId": "m1",
+      "fecha": "2025-09-15T00:00:00.000Z",
+      "concepto": "Pago contado: BASQUET",
+      "tipo": "CREDIT",
+      "monto": 60000,
+      "origen": "PAGO",
+      "refId": "PAY-000050",
+      "allocations": [
+        {
+          "debitId": "MOV-000043",
+          "amount": 60000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000044",
+      "memberId": "m1",
+      "fecha": "2025-09-15T00:00:00.000Z",
+      "concepto": "NATACION (DIARIO)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-w4qqepwj4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-09-30T00:00:00.000Z",
+      "createdAt": "2025-09-24T13:14:21.402Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000051",
+          "creditMovementId": "FzhES1LKC4bmot_H8fojn",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "FzhES1LKC4bmot_H8fojn",
+      "memberId": "m1",
+      "fecha": "2025-09-15T00:00:00.000Z",
+      "concepto": "Pago contado: NATACION",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000051",
+      "allocations": [
+        {
+          "debitId": "MOV-000044",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000045",
+      "memberId": "m1",
+      "fecha": "2025-09-24T00:00:00.000Z",
+      "concepto": "QUINCHO CENTRAL",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-pvrbvadb8",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-09-24T00:00:00.000Z",
+      "createdAt": "2025-09-24T13:17:12.952Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000052",
+          "creditMovementId": "7K-cyIYR97aXwQPH1ycBB",
+          "amount": 100000
+        },
+        {
+          "paymentId": "PAY-000057",
+          "creditMovementId": "eMK7EK_oW_-2VWf_vMqEo",
+          "amount": 50000
+        },
+        {
+          "paymentId": "PAY-000058",
+          "creditMovementId": "qD4VhN1ZFDTGZnCdnXnhg",
+          "amount": 1500
+        },
+        {
+          "paymentId": "PAY-000059",
+          "creditMovementId": "TfwrannkjquI1_pN9ci4q",
+          "amount": 648500
+        }
+      ]
+    },
+    {
+      "id": "7K-cyIYR97aXwQPH1ycBB",
+      "memberId": "m1",
+      "fecha": "2025-09-24T00:00:00.000Z",
+      "concepto": "Pago parcial: QUINCHO CENTRAL",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000052",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000046",
+      "memberId": "m1",
+      "fecha": "2025-11-01T00:00:00.000Z",
+      "concepto": "VOLLEY (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 120000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-h90cv603b",
+      "observaciones": "Pagos varios",
+      "vencimiento": "2025-10-10T00:00:00.000Z",
+      "createdAt": "2025-09-25T11:51:39.062Z",
+      "paidAmount": 120000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000053",
+          "creditMovementId": "pZTVmKER2cuOefIIm6Q3U",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000047",
+      "memberId": "m1",
+      "fecha": "2025-11-01T00:00:00.000Z",
+      "concepto": "NATACION COMPETITIVA (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-6qdc4irpr",
+      "observaciones": "Pagos varios",
+      "vencimiento": "2025-12-01T00:00:00.000Z",
+      "createdAt": "2025-09-25T11:51:39.078Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000053",
+          "creditMovementId": "pZTVmKER2cuOefIIm6Q3U",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "pZTVmKER2cuOefIIm6Q3U",
+      "memberId": "m1",
+      "fecha": "2025-11-01T00:00:00.000Z",
+      "concepto": "Pago contado: VOLLEY, NATACION COMPETITIVA",
+      "tipo": "CREDIT",
+      "monto": 220000,
+      "origen": "PAGO",
+      "refId": "PAY-000053",
+      "allocations": [
+        {
+          "debitId": "MOV-000046",
+          "amount": 120000
+        },
+        {
+          "debitId": "MOV-000047",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "eMK7EK_oW_-2VWf_vMqEo",
+      "memberId": "m1",
+      "fecha": "2025-09-25T00:00:00.000Z",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 50000,
+      "origen": "PAGO",
+      "refId": "PAY-000057",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 50000
+        }
+      ]
+    },
+    {
+      "id": "qD4VhN1ZFDTGZnCdnXnhg",
+      "memberId": "m1",
+      "fecha": "2025-09-25T00:00:00.000Z",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 1500,
+      "origen": "PAGO",
+      "refId": "PAY-000058",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 1500
+        }
+      ]
+    },
+    {
+      "id": "TfwrannkjquI1_pN9ci4q",
+      "memberId": "m1",
+      "fecha": "2025-11-01",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 648500,
+      "origen": "PAGO",
+      "refId": "PAY-000059",
+      "allocations": [
+        {
+          "debitId": "MOV-000045",
+          "amount": 648500
+        }
+      ]
+    },
+    {
+      "id": "c4TvEmmw5KBrqG93v0w8R",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 2100,
+      "origen": "PAGO",
+      "refId": "PAY-000060",
+      "allocations": [
+        {
+          "debitId": "MOV-000042",
+          "amount": 2100
+        }
+      ]
+    },
+    {
+      "id": "MOV-000048",
+      "memberId": "m1",
+      "fecha": "2025-09-25T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-25T00:00:00.000Z",
+      "createdAt": "2025-09-25T19:18:12.493Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000061",
+          "creditMovementId": "Bmtu4oNRpR-JUP39kOGWT",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "Bmtu4oNRpR-JUP39kOGWT",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000061",
+      "allocations": [
+        {
+          "debitId": "MOV-000048",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000049",
+      "memberId": "m1",
+      "fecha": "2025-09-25T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-25T00:00:00.000Z",
+      "createdAt": "2025-09-25T20:21:59.820Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000065",
+          "creditMovementId": "wdvdw3EX2RPjsJPUCpzHC",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000050",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T01:11:26.413Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000065",
+          "creditMovementId": "wdvdw3EX2RPjsJPUCpzHC",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000051",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T01:12:02.898Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000062",
+          "creditMovementId": "A2lf96nyXoXe6qOO1ov0P",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "A2lf96nyXoXe6qOO1ov0P",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000062",
+      "allocations": [
+        {
+          "debitId": "MOV-000051",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000052",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T01:19:39.866Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000063",
+          "creditMovementId": "2vFLMWzEGqTq757aSLGWN",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "2vFLMWzEGqTq757aSLGWN",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000063",
+      "allocations": [
+        {
+          "debitId": "MOV-000052",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000053",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Cuota Social Mensual (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 150000,
+      "origen": "SERVICIO",
+      "refId": "s1",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T01:21:38.125Z",
+      "paidAmount": 150000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000064",
+          "creditMovementId": "PqfuyXNr5PJVL07l-Ej1Q",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "PqfuyXNr5PJVL07l-Ej1Q",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Cuota Social Mensual",
+      "tipo": "CREDIT",
+      "monto": 150000,
+      "origen": "PAGO",
+      "refId": "PAY-000064",
+      "allocations": [
+        {
+          "debitId": "MOV-000053",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "wdvdw3EX2RPjsJPUCpzHC",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago de 2 débitos pendientes",
+      "tipo": "CREDIT",
+      "monto": 200000,
+      "origen": "PAGO",
+      "refId": "PAY-000065",
+      "allocations": [
+        {
+          "debitId": "MOV-000049",
+          "amount": 100000
+        },
+        {
+          "debitId": "MOV-000050",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "4Vg251CHrBl0D0OWkCaWT",
+      "memberId": "m3",
+      "fecha": "2025-09-26",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 13500000,
+      "origen": "PAGO",
+      "refId": "PAY-000066",
+      "allocations": [
+        {
+          "debitId": "MOV-000005",
+          "amount": 13500000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000054",
+      "memberId": "m3",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "HIDROGYM (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 120000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-m57iubgt1",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T01:28:21.935Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000056",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Cuota de Ingreso",
+      "tipo": "DEBIT",
+      "monto": 15000000,
+      "origen": "SERVICIO",
+      "refId": "s2",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-09-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T01:34:24.219Z",
+      "paidAmount": 4500000,
+      "status": "PENDIENTE",
+      "refinancingId": "ref_1759167745632_jradcgqyc",
+      "updatedAt": "2025-09-29T17:42:25.632Z"
+    },
+    {
+      "id": "MOV-000059",
+      "memberId": "m2",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T15:56:33.137Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000071",
+          "creditMovementId": "BKYKEjZWJ160kYx5C4JEM",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "BKYKEjZWJ160kYx5C4JEM",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000071",
+      "allocations": [
+        {
+          "debitId": "MOV-000059",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000060",
+      "memberId": "m2",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T16:56:07.526Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000072",
+          "creditMovementId": "PItzZHqVWTUTP61qyKOGG",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PItzZHqVWTUTP61qyKOGG",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000072",
+      "allocations": [
+        {
+          "debitId": "MOV-000060",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000061",
+      "memberId": "m2",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T17:14:12.555Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000073",
+          "creditMovementId": "yIcgVT6VTrB2zTfXaOi8-",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "yIcgVT6VTrB2zTfXaOi8-",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000073",
+      "allocations": [
+        {
+          "debitId": "MOV-000061",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000062",
+      "memberId": "m2",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-09-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T17:17:46.999Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000074",
+          "creditMovementId": "RZarnrkeLQwQjMdv5q5ip",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "RZarnrkeLQwQjMdv5q5ip",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "tipo": "CREDIT",
+      "monto": 800000,
+      "origen": "PAGO",
+      "refId": "PAY-000074",
+      "allocations": [
+        {
+          "debitId": "MOV-000062",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000063",
+      "memberId": "m2",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T17:37:20.333Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000075",
+          "creditMovementId": "PudK7Sy4Pb-JoGa409uQY",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "PudK7Sy4Pb-JoGa409uQY",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000075",
+      "allocations": [
+        {
+          "debitId": "MOV-000063",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000064",
+      "memberId": "m2",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T19:17:54.647Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000076",
+          "creditMovementId": "z5Me9z9Xng4yiq8iUJhKJ",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "z5Me9z9Xng4yiq8iUJhKJ",
+      "memberId": "m2",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000076",
+      "allocations": [
+        {
+          "debitId": "MOV-000064",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000065",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T19:40:06.712Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000077",
+          "creditMovementId": "zIeev9uHg0Hxuss4Pd2Y_",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "zIeev9uHg0Hxuss4Pd2Y_",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000077",
+      "allocations": [
+        {
+          "debitId": "MOV-000065",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000066",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:01:35.335Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000078",
+          "creditMovementId": "5MUBP19FSUdmVhcS8tQbX",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "5MUBP19FSUdmVhcS8tQbX",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000078",
+      "allocations": [
+        {
+          "debitId": "MOV-000066",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000067",
+      "memberId": "m1",
+      "fecha": "2025-09-25T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-25T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:02:57.814Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000079",
+          "creditMovementId": "qZDtaLXEK5eVbO0EN2maV",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "qZDtaLXEK5eVbO0EN2maV",
+      "memberId": "m1",
+      "fecha": "2025-09-25",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000079",
+      "allocations": [
+        {
+          "debitId": "MOV-000067",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000068",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:06:46.981Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000080",
+          "creditMovementId": "fYtWdl7abU-MlA-tm4Got",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "fYtWdl7abU-MlA-tm4Got",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000080",
+      "allocations": [
+        {
+          "debitId": "MOV-000068",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000069",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:07:23.365Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000081",
+          "creditMovementId": "srwRPUZnyH2AKuiRk4UeL",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "srwRPUZnyH2AKuiRk4UeL",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000081",
+      "allocations": [
+        {
+          "debitId": "MOV-000069",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000070",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:07:54.959Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000082",
+          "creditMovementId": "SRrIIFghFJ-btUvl1Ociv",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "SRrIIFghFJ-btUvl1Ociv",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000082",
+      "allocations": [
+        {
+          "debitId": "MOV-000070",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000071",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:14:51.339Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000083",
+          "creditMovementId": "hNZ0sTBtFn-HjFpwXPf3V",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "hNZ0sTBtFn-HjFpwXPf3V",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000083",
+      "allocations": [
+        {
+          "debitId": "MOV-000071",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000072",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:15:00.335Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000084",
+          "creditMovementId": "FSyXQx7nA33YSKnbDFS81",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "FSyXQx7nA33YSKnbDFS81",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000084",
+      "allocations": [
+        {
+          "debitId": "MOV-000072",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000073",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - efectivo",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:19:06.568Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000085",
+          "creditMovementId": "QZiSkxMrgCF6YVq8Z_aWM",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "QZiSkxMrgCF6YVq8Z_aWM",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000085",
+      "allocations": [
+        {
+          "debitId": "MOV-000073",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000074",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:19:34.178Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000086",
+          "creditMovementId": "xaHO0GmcIlZwQ9eEsAVZ8",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "xaHO0GmcIlZwQ9eEsAVZ8",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000086",
+      "allocations": [
+        {
+          "debitId": "MOV-000074",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000075",
+      "memberId": "m1",
+      "fecha": "2025-09-26T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-26T00:00:00.000Z",
+      "createdAt": "2025-09-26T21:23:47.551Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000087",
+          "creditMovementId": "DSuPm9kt3svjatjemjJnc",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "DSuPm9kt3svjatjemjJnc",
+      "memberId": "m1",
+      "fecha": "2025-09-26",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000087",
+      "allocations": [
+        {
+          "debitId": "MOV-000075",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "mov_1759167745632_kqgq5mxlz",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-09-29",
+      "concepto": "Refinanciación - Anticipo (10%)",
+      "tipo": "CREDIT",
+      "monto": 1500000,
+      "observaciones": "Anticipo de refinanciación ref_1759167745632_jradcgqyc",
+      "refinancingId": "ref_1759167745632_jradcgqyc",
+      "createdAt": "2025-09-29T17:42:25.632Z",
+      "allocations": [
+        {
+          "debitId": "MOV-000056",
+          "amount": 1500000
+        }
+      ]
+    },
+    {
+      "id": "xZJ0LYvy0QAW7in2k2mi2",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-09-30",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 2250000,
+      "origen": "PAGO",
+      "refId": "PAY-000088",
+      "allocations": [
+        {
+          "debitId": "MOV-000056",
+          "amount": 2250000,
+          "paymentId": "2025-09-30"
+        }
+      ]
+    },
+    {
+      "id": "Hwr9j-cl8wsMk4aT9j018",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-09-30",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 2250000,
+      "origen": "PAGO",
+      "refId": "PAY-000089",
+      "allocations": [
+        {
+          "debitId": "MOV-000056",
+          "amount": 2250000,
+          "paymentId": "2025-09-30"
+        }
+      ]
+    },
+    {
+      "id": "MOV-000082",
+      "memberId": "m1",
+      "fecha": "2025-09-30T00:00:00.000Z",
+      "concepto": "BASQUET (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 120000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234537-uebnwdlwc",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-30T00:00:00.000Z",
+      "createdAt": "2025-09-30T17:23:45.316Z",
+      "paidAmount": 20000,
+      "status": "PARCIAL",
+      "allocations": [
+        {
+          "paymentId": "PAY-000096",
+          "creditMovementId": "jtOp7WQ73ZxgQtUOcsfPG",
+          "amount": 20000
+        }
+      ]
+    },
+    {
+      "id": "jtOp7WQ73ZxgQtUOcsfPG",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Pago parcial: BASQUET",
+      "tipo": "CREDIT",
+      "monto": 20000,
+      "origen": "PAGO",
+      "refId": "PAY-000096",
+      "allocations": [
+        {
+          "debitId": "MOV-000082",
+          "amount": 20000
+        }
+      ]
+    },
+    {
+      "id": "mov_1759257084934_m0fbgi5jw",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Cuota 1/6",
+      "tipo": "DEBIT",
+      "monto": 17685,
+      "vencimiento": "2025-10-30",
+      "paidAmount": 0,
+      "status": "PENDIENTE",
+      "observaciones": "Refinanciación ref_1759257084934_86ey3ssf7 - Cuota 1",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "installmentNumber": 1,
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "mov_1759257084934_821m3atsm",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Cuota 2/6",
+      "tipo": "DEBIT",
+      "monto": 17685,
+      "vencimiento": "2025-11-30",
+      "paidAmount": 0,
+      "status": "PENDIENTE",
+      "observaciones": "Refinanciación ref_1759257084934_86ey3ssf7 - Cuota 2",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "installmentNumber": 2,
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "mov_1759257084934_f3hedws2a",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Cuota 3/6",
+      "tipo": "DEBIT",
+      "monto": 17685,
+      "vencimiento": "2025-12-30",
+      "paidAmount": 0,
+      "status": "PENDIENTE",
+      "observaciones": "Refinanciación ref_1759257084934_86ey3ssf7 - Cuota 3",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "installmentNumber": 3,
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "mov_1759257084934_pnyud9s05",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Cuota 4/6",
+      "tipo": "DEBIT",
+      "monto": 17685,
+      "vencimiento": "2026-01-30",
+      "paidAmount": 0,
+      "status": "PENDIENTE",
+      "observaciones": "Refinanciación ref_1759257084934_86ey3ssf7 - Cuota 4",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "installmentNumber": 4,
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "mov_1759257084934_9260ovm9n",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Cuota 5/6",
+      "tipo": "DEBIT",
+      "monto": 17685,
+      "vencimiento": "2026-03-02",
+      "paidAmount": 0,
+      "status": "PENDIENTE",
+      "observaciones": "Refinanciación ref_1759257084934_86ey3ssf7 - Cuota 5",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "installmentNumber": 5,
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "mov_1759257084934_0a273kzc0",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Cuota 6/6",
+      "tipo": "DEBIT",
+      "monto": 17685,
+      "vencimiento": "2026-04-02",
+      "paidAmount": 0,
+      "status": "PENDIENTE",
+      "observaciones": "Refinanciación ref_1759257084934_86ey3ssf7 - Cuota 6",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "installmentNumber": 6,
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "mov_1759257084934_5x7n54oej",
+      "memberId": "m1",
+      "fecha": "2025-09-30",
+      "concepto": "Refinanciación - Anticipo (10%)",
+      "tipo": "CREDIT",
+      "monto": 11790,
+      "observaciones": "Anticipo de refinanciación ref_1759257084934_86ey3ssf7",
+      "refinancingId": "ref_1759257084934_86ey3ssf7",
+      "createdAt": "2025-09-30T18:31:24.934Z"
+    },
+    {
+      "id": "MOV-000083",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-01T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-01T00:00:00.000Z",
+      "createdAt": "2025-10-02T01:47:59.021Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000097",
+          "creditMovementId": "5XFkm9SYbiF6TfKyeZN5e",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "5XFkm9SYbiF6TfKyeZN5e",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-01",
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "tipo": "CREDIT",
+      "monto": 800000,
+      "origen": "PAGO",
+      "refId": "PAY-000097",
+      "allocations": [
+        {
+          "debitId": "MOV-000083",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000084",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-11-01T00:00:00.000Z",
+      "createdAt": "2025-10-02T19:35:44.389Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000098",
+          "creditMovementId": "OEGHdNi1L3pnmE-kUtmyT",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000085",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T19:35:44.429Z",
+      "paidAmount": 300000,
+      "status": "PARCIAL",
+      "allocations": [
+        {
+          "paymentId": "PAY-000098",
+          "creditMovementId": "OEGHdNi1L3pnmE-kUtmyT",
+          "amount": 300000
+        }
+      ]
+    },
+    {
+      "id": "OEGHdNi1L3pnmE-kUtmyT",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02",
+      "concepto": "Pago parcial: Tenis, Alquiler Salón Social",
+      "tipo": "CREDIT",
+      "monto": 400000,
+      "origen": "PAGO",
+      "refId": "PAY-000098",
+      "allocations": [
+        {
+          "debitId": "MOV-000084",
+          "amount": 100000
+        },
+        {
+          "debitId": "MOV-000085",
+          "amount": 300000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000086",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-11-01T00:00:00.000Z",
+      "createdAt": "2025-10-02T19:37:46.044Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000099",
+          "creditMovementId": "a1CS0xD3L_Dg6iEhEXYv-",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "a1CS0xD3L_Dg6iEhEXYv-",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000099",
+      "allocations": [
+        {
+          "debitId": "MOV-000086",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000087",
+      "memberId": "m2",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-11-01T00:00:00.000Z",
+      "createdAt": "2025-10-02T19:39:49.952Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000088",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:22:59.945Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000100",
+          "creditMovementId": "_AWAqM9MneGD6RLISfalV",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000089",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "HORA EXTRA (1h)",
+      "tipo": "DEBIT",
+      "monto": 500000,
+      "origen": "SERVICIO",
+      "refId": "tE5UeE4TV-h-o0TAWs_U1",
+      "observaciones": "Hora extra para Alquiler Salón Social - 4/10/2025 (19:00-03:00)",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:22:59.959Z",
+      "paidAmount": 500000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000100",
+          "creditMovementId": "_AWAqM9MneGD6RLISfalV",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "_AWAqM9MneGD6RLISfalV",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "tipo": "CREDIT",
+      "monto": 1300000,
+      "origen": "PAGO",
+      "refId": "PAY-000100",
+      "allocations": [
+        {
+          "debitId": "MOV-000088",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000089",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000090",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:23:34.461Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000101",
+          "creditMovementId": "FMlM0ojk148653DzVW9A8",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000091",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "HORA EXTRA (1h)",
+      "tipo": "DEBIT",
+      "monto": 500000,
+      "origen": "SERVICIO",
+      "refId": "tE5UeE4TV-h-o0TAWs_U1",
+      "observaciones": "Hora extra para Alquiler Salón Social - 4/10/2025 (19:00-03:00)",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:23:34.475Z",
+      "paidAmount": 500000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000101",
+          "creditMovementId": "FMlM0ojk148653DzVW9A8",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "FMlM0ojk148653DzVW9A8",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "tipo": "CREDIT",
+      "monto": 1300000,
+      "origen": "PAGO",
+      "refId": "PAY-000101",
+      "allocations": [
+        {
+          "debitId": "MOV-000090",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000091",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000092",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:24:00.843Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000102",
+          "creditMovementId": "lySpHExRuDrLlJ2ZVwNUY",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000093",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "HORA EXTRA (1h)",
+      "tipo": "DEBIT",
+      "monto": 500000,
+      "origen": "SERVICIO",
+      "refId": "tE5UeE4TV-h-o0TAWs_U1",
+      "observaciones": "Hora extra para Alquiler Salón Social - 4/10/2025 (19:00-03:00)",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:24:00.858Z",
+      "paidAmount": 500000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000102",
+          "creditMovementId": "lySpHExRuDrLlJ2ZVwNUY",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "lySpHExRuDrLlJ2ZVwNUY",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "tipo": "CREDIT",
+      "monto": 1300000,
+      "origen": "PAGO",
+      "refId": "PAY-000102",
+      "allocations": [
+        {
+          "debitId": "MOV-000092",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000093",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000094",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:24:33.105Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000103",
+          "creditMovementId": "MewwSBoQhdzYK9jNtsnPL",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000095",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "HORA EXTRA (1h)",
+      "tipo": "DEBIT",
+      "monto": 500000,
+      "origen": "SERVICIO",
+      "refId": "tE5UeE4TV-h-o0TAWs_U1",
+      "observaciones": "Hora extra para Alquiler Salón Social - 4/10/2025 (19:00-03:00)",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:24:33.120Z",
+      "paidAmount": 500000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000103",
+          "creditMovementId": "MewwSBoQhdzYK9jNtsnPL",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "MewwSBoQhdzYK9jNtsnPL",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "tipo": "CREDIT",
+      "monto": 1300000,
+      "origen": "PAGO",
+      "refId": "PAY-000103",
+      "allocations": [
+        {
+          "debitId": "MOV-000094",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000095",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000096",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:24:51.963Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000104",
+          "creditMovementId": "PyFXZFP5wC6aS0c-RUvOD",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "PyFXZFP5wC6aS0c-RUvOD",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "tipo": "CREDIT",
+      "monto": 800000,
+      "origen": "PAGO",
+      "refId": "PAY-000104",
+      "allocations": [
+        {
+          "debitId": "MOV-000096",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000097",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:25:08.770Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000105",
+          "creditMovementId": "OyHhOiv8dNQUSNmPP_vDd",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000098",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "HORA EXTRA (1h)",
+      "tipo": "DEBIT",
+      "monto": 500000,
+      "origen": "SERVICIO",
+      "refId": "tE5UeE4TV-h-o0TAWs_U1",
+      "observaciones": "Hora extra para Alquiler Salón Social - 9/10/2025 (08:00-09:00)",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-02T22:25:08.783Z",
+      "paidAmount": 500000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000105",
+          "creditMovementId": "OyHhOiv8dNQUSNmPP_vDd",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "OyHhOiv8dNQUSNmPP_vDd",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social, HORA EXTRA (1h)",
+      "tipo": "CREDIT",
+      "monto": 1300000,
+      "origen": "PAGO",
+      "refId": "PAY-000105",
+      "allocations": [
+        {
+          "debitId": "MOV-000097",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000098",
+          "amount": 500000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000099",
+      "memberId": "m3",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-02T00:00:00.000Z",
+      "createdAt": "2025-10-03T00:56:01.837Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000106",
+          "creditMovementId": "3dtyB2qjwJ9gwhelkkstG",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000100",
+      "memberId": "m3",
+      "fecha": "2025-10-02T00:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-11-01T00:00:00.000Z",
+      "createdAt": "2025-10-03T00:56:01.856Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000106",
+          "creditMovementId": "3dtyB2qjwJ9gwhelkkstG",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "3dtyB2qjwJ9gwhelkkstG",
+      "memberId": "m3",
+      "fecha": "2025-10-02",
+      "concepto": "Pago contado: Alquiler Salón Social, Tenis",
+      "tipo": "CREDIT",
+      "monto": 900000,
+      "origen": "PAGO",
+      "refId": "PAY-000106",
+      "allocations": [
+        {
+          "debitId": "MOV-000099",
+          "amount": 800000
+        },
+        {
+          "debitId": "MOV-000100",
+          "amount": 100000
+        }
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "id": "74YNJhMlvE6e8WwrMcrRS",
+      "memberId": "m1",
+      "nombre": "01801596688001001000000622025091611308492092.pdf",
+      "url": "/uploads/m1/1758126677717_74YNJhMlvE6e8WwrMcrRS.pdf",
+      "mime": "application/pdf",
+      "size": 102037,
+      "fecha": "2025-09-17T16:31:17.720Z"
+    }
+  ],
+  "sequences": {
+    "member": 4,
+    "payment": 106,
+    "collector": 2,
+    "family": 2,
+    "financing": 0,
+    "commission": 0,
+    "movement": 100,
+    "subscription": 14,
+    "reservation": 13
+  },
+  "categories": [
+    {
+      "id": "AmwwMIn7FMMf0UfHaypRf",
+      "nombre": "Deportes"
+    },
+    {
+      "id": "kcIEE64AbsCqkLijnBjzB",
+      "nombre": "Alquileres"
+    },
+    {
+      "id": "dw7-gjAY5RQiVwOtPQN0Y",
+      "nombre": "Otros"
+    },
+    {
+      "id": "cat-1758646234536-udnz57tpq",
+      "nombre": "OTROS",
+      "activo": true
+    },
+    {
+      "id": "cat-1758646234537-rwi4i3daf",
+      "nombre": "ALQUILER",
+      "activo": true
+    }
+  ],
+  "memberSubscriptions": [
+    {
+      "id": "SUB-000012",
+      "memberId": "m1",
+      "serviceId": "s1",
+      "price": 150000,
+      "periodicity": "MENSUAL",
+      "cadenceDays": 30,
+      "autoDebit": true,
+      "status": "ACTIVE",
+      "startDate": "2025-09-23",
+      "nextChargeDate": "2025-09-23",
+      "notes": "Creado desde formulario unificado el 2025-09-01"
+    },
+    {
+      "id": "SUB-000013",
+      "memberId": "m1",
+      "serviceId": "srv-1758646234537-uebnwdlwc",
+      "price": 60000,
+      "periodicity": "DIARIO",
+      "cadenceDays": 1,
+      "autoDebit": true,
+      "status": "ACTIVE",
+      "startDate": "2025-09-23",
+      "nextChargeDate": "2025-09-23",
+      "notes": "Creado desde formulario unificado el 2025-09-15"
+    },
+    {
+      "id": "SUB-000014",
+      "memberId": "m1",
+      "serviceId": "srv-1758646234538-w4qqepwj4",
+      "price": 100000,
+      "periodicity": "DIARIO",
+      "cadenceDays": 1,
+      "autoDebit": false,
+      "status": "ACTIVE",
+      "startDate": "2025-09-24",
+      "nextChargeDate": "2025-09-24",
+      "notes": "Creado desde formulario unificado el 2025-09-15"
+    }
+  ],
+  "reservations": [
+    {
+      "id": "RES-000002",
+      "resourceId": "tenis-cancha-1",
+      "memberId": "m2",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CANCELADO",
+      "notas": "Monto corregido: valor manual desde página de socios (Gs. 100.000)",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T15:56:33.380Z",
+      "updatedAt": "2025-09-26T17:18:20.514Z",
+      "pagos": [],
+      "debitMovementId": "MOV-000059",
+      "cancelReason": "Cancelado manualmente"
+    },
+    {
+      "id": "RES-000003",
+      "resourceId": "tenis-cancha-1",
+      "memberId": "m2",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CANCELADO",
+      "notas": "Alquiler realizado",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T16:56:07.745Z",
+      "updatedAt": "2025-09-26T17:13:54.537Z",
+      "pagos": [],
+      "cancelReason": "Cancelado manualmente"
+    },
+    {
+      "id": "RES-000004",
+      "resourceId": "tenis-cancha-1",
+      "memberId": "m2",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CANCELADO",
+      "notas": "tenis",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T17:14:12.970Z",
+      "updatedAt": "2025-09-26T17:18:25.438Z",
+      "pagos": [],
+      "cancelReason": "Cancelado manualmente"
+    },
+    {
+      "id": "RES-000005",
+      "resourceId": "quincho-bbq",
+      "memberId": "m2",
+      "start": "2025-09-26T19:00:00.000Z",
+      "end": "2025-09-26T20:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 800000,
+      "status": "CANCELADO",
+      "notas": "",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T17:17:47.346Z",
+      "updatedAt": "2025-09-26T17:36:47.183Z",
+      "pagos": [
+        {
+          "id": "PAY-TEST-001",
+          "fecha": "2025-09-26T17:17:47.346Z",
+          "monto": 800000,
+          "metodo": "EFECTIVO",
+          "observaciones": "Pago al contado"
+        }
+      ],
+      "cancelReason": "Cancelado manualmente"
+    },
+    {
+      "id": "RES-000006",
+      "resourceId": "tenis-cancha-1",
+      "memberId": "m2",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CANCELADO",
+      "notas": "",
+      "debitMovementId": "MOV-000063",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T17:37:20.531Z",
+      "updatedAt": "2025-09-26T19:17:36.380Z",
+      "pagos": [],
+      "cancelReason": "Cancelado manualmente"
+    },
+    {
+      "id": "RES-000007",
+      "resourceId": "servicio-s4",
+      "memberId": "m2",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CANCELADO",
+      "notas": "",
+      "debitMovementId": "MOV-000064",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T19:17:54.901Z",
+      "updatedAt": "2025-09-26T19:37:39.764Z",
+      "pagos": [],
+      "cancelReason": "Cancelado manualmente"
+    },
+    {
+      "id": "RES-000008",
+      "resourceId": "s4-espacio-1",
+      "memberId": "m1",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Juan Carlos Pérez López",
+      "contacto": "0981-123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CULMINADO",
+      "notas": "",
+      "debitMovementId": "MOV-000065",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T19:40:06.923Z",
+      "updatedAt": "2025-09-28T19:19:06.249Z",
+      "pagos": []
+    },
+    {
+      "id": "RES-000009",
+      "resourceId": "s4-espacio-0",
+      "memberId": "m1",
+      "start": "2025-09-26T22:00:00.000Z",
+      "end": "2025-09-27T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Juan Carlos Pérez López",
+      "contacto": "0981-123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "CULMINADO",
+      "notas": "",
+      "debitMovementId": "MOV-000070",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-09-26T21:07:55.018Z",
+      "updatedAt": "2025-09-28T19:19:06.249Z",
+      "pagos": []
+    },
+    {
+      "id": "RES-TEST-001",
+      "resourceId": "tenis-cancha-1",
+      "memberId": "M001",
+      "start": "2025-09-26T21:00:00.000Z",
+      "end": "2025-09-26T23:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Usuario Prueba",
+      "contacto": "123-456-7890",
+      "medioContacto": "telefono",
+      "adelanto": 0,
+      "montoTotal": 50000,
+      "status": "CULMINADO",
+      "notas": "Reserva de prueba para testing automático",
+      "createdBy": "system",
+      "createdAt": "2025-09-26T20:00:00.000Z",
+      "updatedAt": "2025-09-28T19:23:07.979Z",
+      "pagos": []
+    },
+    {
+      "id": "RES-000010",
+      "resourceId": "espacio-s4-0",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "start": "2025-10-02T22:00:00.000Z",
+      "end": "2025-10-03T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Amelia Gonzalez",
+      "contacto": "0984701442",
+      "medioContacto": "telefono",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementId": "MOV-000086",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-02T19:37:46.123Z",
+      "updatedAt": "2025-10-02T19:37:46.123Z",
+      "pagos": []
+    },
+    {
+      "id": "RES-000011",
+      "resourceId": "espacio-s4-0",
+      "memberId": "m2",
+      "start": "2025-10-03T22:00:00.000Z",
+      "end": "2025-10-04T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Ana María Gómez Silva",
+      "contacto": "0985-654321",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementId": "MOV-000087",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-02T19:39:49.986Z",
+      "updatedAt": "2025-10-02T19:39:49.986Z",
+      "pagos": []
+    },
+    {
+      "id": "RES-000012",
+      "resourceId": "servicio-s5",
+      "memberId": "FSsuy6FrXufXlW_W5lrjv",
+      "start": "2025-10-10T11:00:00.000Z",
+      "end": "2025-10-10T12:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Josemaria Maciel",
+      "contacto": "0982349328",
+      "medioContacto": "telefono",
+      "adelanto": 0,
+      "montoTotal": 800000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementId": "MOV-000097",
+      "acontecimiento": "15_anos",
+      "quinceaneraFocusNombre": "Sonia",
+      "cantidadPersonas": 12,
+      "observacionesGenerales": "Ninguno",
+      "horaExtra": true,
+      "cantidadHorasExtra": 1,
+      "montoHorasExtra": 500,
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-02T22:25:08.814Z",
+      "updatedAt": "2025-10-02T22:25:08.814Z",
+      "pagos": []
+    },
+    {
+      "tipoEspacio": "quincho",
+      "codigo": "RES-100245",
+      "fechaCreacion": "2025-10-02T21:33:45Z",
+      "socio": {
+        "nombre": "María González",
+        "codigo": "SOC-001",
+        "email": "maria.gonzalez@email.com"
+      },
+      "pagos": [],
+      "tercero": {
+        "relacionSocio": "",
+        "contactoTercero": "",
+        "nombreTercero": "",
+        "esTercero": false
+      },
+      "detallesEvento": {
+        "observaciones": "Necesita decoración especial para ceremonia",
+        "tipoEvento": "boda",
+        "horaInicio": "19:00",
+        "cantidadInvitados": 80,
+        "horaFin": "02:00",
+        "descripcionEvento": "Boda de María y Carlos - Ceremonia y recepción"
+      },
+      "precio": 450000,
+      "requiereApa": {
+        "fechaSolicitud": "2025-09-22T21:33:45Z",
+        "estado": "aprobado",
+        "observacionesApa": "Aprobado por junta directiva - Evento familiar tradicional",
+        "fechaAprobacion": "2025-09-27T21:33:45Z",
+        "requiere": true
+      },
+      "horaExtra": {
+        "totalHorasExtra": 50000,
+        "cantidadHoras": 2,
+        "tieneHoraExtra": true,
+        "precioHoraExtra": 25000
+      },
+      "fechaEvento": "2025-10-17",
+      "estado": "activa"
+    },
+    {
+      "id": "RES-000013",
+      "resourceId": "espacio-s4-0",
+      "memberId": "m3",
+      "start": "2025-10-06T18:00:00.000Z",
+      "end": "2025-10-06T19:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Roberto Martínez",
+      "contacto": "0987-789123",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementId": "MOV-000100",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-03T00:56:02.305Z",
+      "updatedAt": "2025-10-03T00:56:02.305Z",
+      "pagos": []
+    }
+  ],
+  "resources": [],
+  "refinancings": [
+    {
+      "id": "ref_1759167745632_jradcgqyc",
+      "memberId": "yzpuKIpCt4X4nhQ3mn5gI",
+      "originalDebitIds": [
+        "MOV-000056"
+      ],
+      "originalDebitsSnapshot": [
+        {
+          "id": "MOV-000056",
+          "monto": 15000000,
+          "paidAmount": 0,
+          "vencimiento": "2025-09-26T00:00:00.000Z",
+          "concepto": "Cuota de Ingreso",
+          "fecha": "2025-09-26T00:00:00.000Z"
+        }
+      ],
+      "principal": 15000000,
+      "downPaymentPercent": 10,
+      "downPaymentAmount": 1500000,
+      "installments": 6,
+      "installmentAmount": 2250000,
+      "startDueDate": "2025-10-29",
+      "schedule": [
+        {
+          "number": 1,
+          "amount": 2250000,
+          "dueDate": "2025-10-29",
+          "status": "PAGADA",
+          "debitMovementId": "mov_1759167745632_gjf9a6z4d",
+          "paidAmount": 2250000
+        },
+        {
+          "number": 2,
+          "amount": 2250000,
+          "dueDate": "2025-11-29",
+          "status": "PAGADA",
+          "debitMovementId": "mov_1759167745632_x7twlgq6g",
+          "paidAmount": 2250000
+        },
+        {
+          "number": 3,
+          "amount": 2250000,
+          "dueDate": "2025-12-29",
+          "status": "PENDIENTE",
+          "debitMovementId": "mov_1759167745632_saozim11o",
+          "paidAmount": 0
+        },
+        {
+          "number": 4,
+          "amount": 2250000,
+          "dueDate": "2026-01-29",
+          "status": "PENDIENTE",
+          "debitMovementId": "mov_1759167745632_6nb0lwjyg",
+          "paidAmount": 0
+        },
+        {
+          "number": 5,
+          "amount": 2250000,
+          "dueDate": "2026-03-01",
+          "status": "PENDIENTE",
+          "debitMovementId": "mov_1759167745632_wdhk860hv",
+          "paidAmount": 0
+        },
+        {
+          "tipoEspacio": "salon_social",
+          "codigo": "RES-1002572",
+          "fechaCreacion": "2025-10-02T21:34:57Z",
+          "socio": {
+            "nombre": "Carlos Rodríguez",
+            "codigo": "SOC-002",
+            "email": "carlos.rodriguez@email.com"
+          },
+          "pagos": [],
+          "tercero": {
+            "relacionSocio": "Esposa del socio titular",
+            "contactoTercero": "ana.rodriguez@email.com - Tel: +57 300 1234567",
+            "nombreTercero": "Ana Rodríguez",
+            "esTercero": true
+          },
+          "detallesEvento": {
+            "observaciones": "Fiesta sorpresa - coordinar llegada discretamente",
+            "tipoEvento": "cumpleanos",
+            "horaInicio": "15:00",
+            "cantidadInvitados": 45,
+            "horaFin": "20:00",
+            "descripcionEvento": "Cumpleaños 50 de Ana Rodríguez"
+          },
+          "precio": 280000,
+          "requiereApa": {
+            "fechaSolicitud": "2025-09-29T21:34:57Z",
+            "estado": "pendiente",
+            "observacionesApa": "En evaluación por comité - Evento familiar programado",
+            "fechaAprobacion": "",
+            "requiere": true
+          },
+          "horaExtra": {
+            "totalHorasExtra": 0,
+            "cantidadHoras": 0,
+            "tieneHoraExtra": false,
+            "precioHoraExtra": 0
+          },
+          "fechaEvento": "2025-10-22",
+          "estado": "activa"
+        },
+        {
+          "tipoEspacio": "cancha_tenis",
+          "codigo": "RES-1002503",
+          "fechaCreacion": "2025-10-02T21:35:50Z",
+          "socio": {
+            "nombre": "Roberto Silva",
+            "codigo": "SOC-003",
+            "email": "roberto.silva@email.com"
+          },
+          "pagos": [],
+          "tercero": {
+            "relacionSocio": "Empresa donde trabaja el socio",
+            "contactoTercero": "eventos@techsolutions.com - Tel: +57 1 234 5678",
+            "nombreTercero": "TechSolutions SAS",
+            "esTercero": true
+          },
+          "detallesEvento": {
+            "observaciones": "Incluye refrigerio y premiación",
+            "tipoEvento": "otros",
+            "horaInicio": "09:00",
+            "cantidadInvitados": 25,
+            "horaFin": "13:00",
+            "descripcionEvento": "Torneo corporativo de tenis - Empresa TechSolutions"
+          },
+          "precio": 180000,
+          "requiereApa": {
+            "fechaSolicitud": "2025-09-17T21:35:50Z",
+            "estado": "rechazado",
+            "observacionesApa": "Rechazado - Evento comercial no permitido según reglamento del club",
+            "fechaAprobacion": "",
+            "requiere": true
+          },
+          "horaExtra": {
+            "totalHorasExtra": 30000,
+            "cantidadHoras": 1,
+            "tieneHoraExtra": true,
+            "precioHoraExtra": 30000
+          },
+          "fechaEvento": "2025-10-14",
+          "estado": "activa"
+        },
+        {
+          "number": 6,
+          "amount": 2250000,
+          "dueDate": "2026-03-29",
+          "status": "PENDIENTE",
+          "debitMovementId": "mov_1759167745632_c6tprnxnb",
+          "paidAmount": 0
+        }
+      ],
+      "status": "ANULADA",
+      "approvalRequired": false,
+      "sentToBoard": false,
+      "observations": "",
+      "auditTrail": [
+        {
+          "timestamp": "2025-09-29T17:42:25.632Z",
+          "action": "CREATED",
+          "userId": "system",
+          "details": "Refinanciación creada con 6 cuotas"
+        },
+        {
+          "timestamp": "2025-09-30T11:31:11.642Z",
+          "action": "CANCELLED_WITH_ROLLBACK",
+          "userId": "admin",
+          "details": "Refinanciación anulada con rollback completo. Crédito desasignado: 2250000 de Pago de 1 débito pendiente (2025-09-30); Crédito desasignado: 2250000 de Pago de 1 débito pendiente (2025-09-30); Cuota eliminada: #1 - 2250000; Cuota eliminada: #2 - 2250000; Cuota eliminada: #3 - 2250000; Cuota eliminada: #4 - 2250000; Cuota eliminada: #5 - 2250000; Cuota eliminada: #6 - 2250000; Débito restaurado: Cuota de Ingreso - 15000000 (saldo: 15000000); Reasignado: 2250000 a Cuota de Ingreso (fecha original: 2025-09-30); Reasignado: 2250000 a Cuota de Ingreso (fecha original: 2025-09-30). Total reasignado: 4500000. Excedente: 0"
+        }
+      ],
+      "executedAt": "2025-09-29T17:42:25.632Z",
+      "createdAt": "2025-09-29T17:42:25.632Z",
+      "updatedAt": "2025-09-30T11:31:11.642Z",
+      "createdBy": "system",
+      "cancelledAt": "2025-09-30T11:31:11.642Z"
+    },
+    {
+      "id": "ref_1759257084934_86ey3ssf7",
+      "memberId": "m1",
+      "originalDebitIds": [
+        "MOV-000042"
+      ],
+      "originalDebitsSnapshot": [
+        {
+          "id": "MOV-000042",
+          "monto": 150000,
+          "paidAmount": 32100,
+          "vencimiento": "2025-10-24T00:00:00.000Z",
+          "concepto": "Cuota Social Mensual (MENSUAL)",
+          "fecha": "2025-10-30T00:00:00.000Z"
+        }
+      ],
+      "principal": 117900,
+      "downPaymentPercent": 10,
+      "downPaymentAmount": 11790,
+      "installments": 6,
+      "installmentAmount": 17685,
+      "startDueDate": "2025-10-30",
+      "schedule": [
+        {
+          "number": 1,
+          "amount": 17685,
+          "dueDate": "2025-10-30",
+          "status": "PENDIENTE"
+        },
+        {
+          "number": 2,
+          "amount": 17685,
+          "dueDate": "2025-11-30",
+          "status": "PENDIENTE"
+        },
+        {
+          "number": 3,
+          "amount": 17685,
+          "dueDate": "2025-12-30",
+          "status": "PENDIENTE"
+        },
+        {
+          "number": 4,
+          "amount": 17685,
+          "dueDate": "2026-01-30",
+          "status": "PENDIENTE"
+        },
+        {
+          "number": 5,
+          "amount": 17685,
+          "dueDate": "2026-03-02",
+          "status": "PENDIENTE"
+        },
+        {
+          "number": 6,
+          "amount": 17685,
+          "dueDate": "2026-04-02",
+          "status": "PENDIENTE"
+        }
+      ],
+      "status": "ACTIVA",
+      "approvalRequired": false,
+      "sentToBoard": false,
+      "observations": "",
+      "auditTrail": [
+        {
+          "timestamp": "2025-09-30T18:31:24.934Z",
+          "action": "CREATED",
+          "userId": "system",
+          "details": "Refinanciación creada con 6 cuotas"
+        }
+      ],
+      "executedAt": "2025-09-30T18:31:24.934Z",
+      "createdAt": "2025-09-30T18:31:24.934Z",
+      "updatedAt": "2025-09-30T18:31:24.934Z",
+      "createdBy": "system"
+    }
+  ]
+}

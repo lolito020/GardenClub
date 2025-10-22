@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  body { 
+    background: #E6F3FB;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Mejoras tipográficas */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+  
+  h1 { @apply text-3xl lg:text-4xl; }
+  h2 { @apply text-2xl lg:text-3xl; }
+  h3 { @apply text-xl lg:text-2xl; }
+  h4 { @apply text-lg lg:text-xl; }
+  
+  p, span, div {
+    line-height: 1.6;
+  }
+  
+  /* Mejor legibilidad en textos pequeños */
+  .text-xs, .text-sm {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+}
+
+.menu-item { 
+  @apply flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white hover:text-primary-600 hover:shadow-sm transition-all duration-200; 
+}
+
+.menu-item.active { 
+  @apply bg-white text-primary-600 shadow-sm; 
+}
+
+/* Color azul personalizado para botones */
+.bg-custom-blue {
+  background-color: rgb(20, 131, 181);
+}
+
+.bg-custom-blue:hover {
+  background-color: rgb(16, 105, 145); /* Versión más oscura para hover */
+}

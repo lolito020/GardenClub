@@ -1,0 +1,1444 @@
+'use client';
+
+import AdminLayout from '@/components/AdminLayout';
+import { AuthClient } from '@/lib/auth-client';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { formatCurrency } from '@/lib/utils';
+import { Plus, Calendar as CalIcon, ChevronLeft, ChevronRight, X, MoreVertical } from 'lucide-react';
+
+type ReservationStatus = 'ACTIVO' | 'CULMINADO' | 'CANCELADO' | 'HOLD' | 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELED';
+
+interface Venue {
+  id: string; nombre: string; color?: string; activo: boolean;
+  precioBaseHora?: number; garantia?: number; capacidad?: number;
+  descripcion?: string;
+}
+interface Reservation {
+  id: string; 
+  resourceId: string; // Cambiado de venueId
+  memberId?: string;
+  nombreContacto: string; // Cambiado de nombreCliente
+  contacto: string; // teléfono/email
+  medioContacto: 'telefono'|'whatsapp'|'email'|'presencial'|'otro';
+  invitados?: number; // Cambiado de asistentes
+  start: string; // Cambiado de inicio
+  end: string; // Cambiado de fin
+  status: ReservationStatus;
+  montoTotal: number; // Cambiado de total
+  adelanto?: number; // Nuevo campo
+  pagado?: number;
+  notas?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+interface ReservationPayment {
+  id: string; reservationId: string; fecha: string; monto: number; metodo: string;
+  numeroRecibo?: string; observaciones?: string;
+}
+
+export default function ReservasPage() {
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [reservas, setReservas] = useState<Reservation[]>([]);
+  const [members, setMembers] = useState<{id:string, codigo:string, nombres:string, apellidos:string, subcategoria:string}[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // filtros
+  const [venueId, setVenueId] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [q, setQ] = useState<string>('');
+  
+  // vista de historial
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyReservas, setHistoryReservas] = useState<Reservation[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historySearch, setHistorySearch] = useState('');
+
+  // calendario (vista mensual simple)
+  const [current, setCurrent] = useState(() => {
+    const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+
+  // modales
+  const [showModal, setShowModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    resourceId: '', fecha: new Date().toISOString().slice(0,10),
+    inicioHora: '19:00', finHora: '23:00',
+    memberId: '', // ID del socio/miembro seleccionado
+    nombreContacto: '', contacto: '', medioContacto: 'telefono' as 'telefono' | 'email' | 'whatsapp' | 'presencial' | 'otro',
+    invitados: '', adelanto: '',
+    montoTotal: '',
+    status: 'ACTIVO' as ReservationStatus,
+    notas: '',
+  });
+
+  // Estados para autocompletado de socios
+  const [memberSearch, setMemberSearch] = useState('');
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // menu de fila
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{top: number, left: number} | null>(null);
+  const toggleMenu = (id: string, event?: React.MouseEvent) => {
+    if (openMenuId === id) {
+      setOpenMenuId(null);
+      setMenuPosition(null);
+      return;
+    }
+
+    setOpenMenuId(id);
+    if (!event) return;
+
+    // Preferir event.currentTarget (el botón) ya que es más fiable que event.target
+    const el = (event.currentTarget || event.target) as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const menuWidth = 192;
+    const menuHeight = 120; // Altura estimada del menú
+    
+    // Calcular posición inicial (debajo y a la izquierda del botón)
+    let left = rect.left - menuWidth + rect.width;
+    let top = rect.bottom + 4;
+    
+    // Si no hay espacio a la derecha, alinear hacia la izquierda
+    if (left < 8) {
+      left = rect.right - menuWidth;
+    }
+    
+    // Si no hay espacio abajo, mostrar arriba
+    if (top + menuHeight > window.innerHeight - 8) {
+      top = rect.top - menuHeight - 4;
+    }
+    
+    // Asegurar que no se salga de los bordes
+    const finalLeft = Math.min(Math.max(left, 8), window.innerWidth - menuWidth - 8);
+    const finalTop = Math.max(top, 8);
+
+    setMenuPosition({ top: finalTop, left: finalLeft });
+  };
+
+  useEffect(() => { loadVenues(); loadMembers(); }, []);
+  useEffect(() => { fetchReservas(); }, [venueId, status, current, q]);
+  useEffect(() => { 
+    if (showHistoryModal) {
+      fetchHistory(); 
+    }
+  }, [showHistoryModal]);
+
+  // Cerrar menú de acciones al hacer clic fuera o al hacer scroll/resize
+  useEffect(() => {
+    function handleGlobalClick(e: MouseEvent) {
+      const target = e.target as Node;
+      // Si hay un menú abierto, cerrarlo cuando se haga click fuera de cualquier botón/menu
+      if (openMenuId) {
+        // encontrar el botón abierto por id no es trivial aquí, así que cerramos si el target no es botón ni dentro de un botón
+        if (!(target instanceof Element && (target.closest('button') || target.closest('.menu-action')))) {
+          setOpenMenuId(null);
+          setMenuPosition(null);
+        }
+      }
+    }
+    function handleGlobalScroll() {
+      if (openMenuId) {
+        setOpenMenuId(null);
+        setMenuPosition(null);
+      }
+    }
+    document.addEventListener('mousedown', handleGlobalClick);
+    window.addEventListener('scroll', handleGlobalScroll, true);
+    window.addEventListener('resize', handleGlobalScroll);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+      window.removeEventListener('scroll', handleGlobalScroll, true);
+      window.removeEventListener('resize', handleGlobalScroll);
+    };
+  }, [openMenuId]);
+
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowMemberDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  async function loadVenues() {
+    try {
+      const res = await AuthClient.authenticatedFetch('/api/venues');
+      const data = await res.json();
+      setVenues(Array.isArray(data) ? data : []);
+      if (Array.isArray(data) && data.length && !venueId) setVenueId(data[0].id);
+    } catch (e) { console.error(e); }
+  }
+
+  async function loadMembers() {
+    try {
+      const res = await AuthClient.authenticatedFetch('/api/members');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setMembers(data.map(m => ({
+          id: m.id,
+          codigo: m.codigo,
+          nombres: m.nombres,
+          apellidos: m.apellidos,
+          subcategoria: m.subcategoria || ''
+        })));
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  async function fetchReservas() {
+    setLoading(true);
+    try {
+      // rango mes
+      const from = new Date(current.getFullYear(), current.getMonth(), 1).toISOString().slice(0,10);
+      const to = new Date(current.getFullYear(), current.getMonth()+1, 0).toISOString().slice(0,10);
+      const qs = new URLSearchParams();
+      if (venueId) qs.set('venueId', venueId);
+      if (status) qs.set('status', status);
+      if (q) qs.set('q', q);
+      // Por defecto solo traer reservas activas (no historial)
+      qs.set('from', from); qs.set('to', to);
+      const res = await AuthClient.authenticatedFetch(`/api/reservas?${qs.toString()}`);
+      const data = await res.json();
+      setReservas(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e); setReservas([]);
+    } finally { setLoading(false); }
+  }
+
+  async function fetchHistory() {
+    setHistoryLoading(true);
+    try {
+      const qs = new URLSearchParams();
+      qs.set('includeHistory', 'true'); // Traer historial (culminadas y canceladas)
+      if (historySearch) qs.set('q', historySearch);
+      const res = await AuthClient.authenticatedFetch(`/api/reservas?${qs.toString()}`);
+      const data = await res.json();
+      setHistoryReservas(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e); 
+      setHistoryReservas([]);
+    } finally { 
+      setHistoryLoading(false); 
+    }
+  }
+
+  function prevMonth() {
+    const d = new Date(current); d.setMonth(d.getMonth()-1); setCurrent(d);
+  }
+  function nextMonth() {
+    const d = new Date(current); d.setMonth(d.getMonth()+1); setCurrent(d);
+  }
+
+  // calendario mensual: matriz de días
+  const monthMatrix = useMemo(() => {
+    const first = new Date(current.getFullYear(), current.getMonth(), 1);
+    const start = new Date(first); start.setDate(first.getDate() - ((first.getDay()+6)%7)); // lunes
+    const weeks: Date[][] = [];
+    for (let w=0; w<6; w++) {
+      const row: Date[] = [];
+      for (let d=0; d<7; d++) {
+        const day = new Date(start); day.setDate(start.getDate() + (w*7 + d));
+        row.push(day);
+      }
+      weeks.push(row);
+    }
+    return weeks;
+  }, [current]);
+
+  function dayKey(d: Date) { return d.toISOString().slice(0,10); }
+
+  // reservas por día (solo las que tocan el día)
+  const reservasByDay = useMemo(() => {
+    const map = new Map<string, Reservation[]>();
+    for (const r of reservas) {
+      const i = new Date(r.start), f = new Date(r.end);
+      for (let d = new Date(i); d <= f; d.setDate(d.getDate()+1)) {
+        const k = dayKey(d);
+        const arr = map.get(k) || [];
+        if (!arr.find(x => x.id === r.id)) arr.push(r);
+        map.set(k, arr);
+      }
+    }
+    return map;
+  }, [reservas]);
+
+  // Función para detectar días con conflictos u ocupación alta
+  const getDayStatus = useMemo(() => {
+    const statusMap = new Map<string, 'busy' | 'available' | 'conflict'>();
+    
+    for (const [dayKey, dayReservations] of reservasByDay) {
+      const activeReservations = dayReservations.filter(r => r.status !== 'CANCELED');
+      
+      if (activeReservations.length === 0) {
+        statusMap.set(dayKey, 'available');
+      } else if (activeReservations.length >= 3) {
+        statusMap.set(dayKey, 'busy');
+      } else {
+        // Verificar si hay conflictos horarios
+        const hasConflicts = activeReservations.some((r1, i) => 
+          activeReservations.slice(i + 1).some(r2 => 
+            r1.resourceId === r2.resourceId &&
+            new Date(r1.start) < new Date(r2.end) && 
+            new Date(r1.end) > new Date(r2.start)
+          )
+        );
+        statusMap.set(dayKey, hasConflicts ? 'conflict' : 'available');
+      }
+    }
+    
+    return statusMap;
+  }, [reservasByDay]);
+
+  function statusChip(s: ReservationStatus | string) {
+    const base = 'px-2 py-0.5 rounded text-xs font-medium';
+    
+    // Normalizar el valor del status
+    let normalizedStatus = s;
+    if (s === 'ACTIVE' || s === 'RESERVADO' || s === 'PENDING') {
+      normalizedStatus = 'ACTIVO';
+    } else if (s === 'COMPLETED') {
+      normalizedStatus = 'CULMINADO';  
+    } else if (s === 'CANCELED') {
+      normalizedStatus = 'CANCELADO';
+    }
+    
+    const styles: Record<string,string> = {
+      ACTIVO:'bg-green-100 border-green-300 text-green-800',
+      CULMINADO:'bg-blue-100 border-blue-300 text-blue-800',
+      CANCELADO:'bg-red-100 border-red-300 text-red-800',
+      HOLD:'bg-amber-100 border-amber-300 text-amber-800',
+      PENDING:'bg-gray-100 border-gray-300 text-gray-800',
+      CONFIRMED:'bg-green-100 border-green-300 text-green-800',
+      COMPLETED:'bg-blue-100 border-blue-300 text-blue-800',
+      CANCELED:'bg-red-100 border-red-300 text-red-800',
+    };
+    const labels: Record<string,string> = {
+      ACTIVO: 'Activo',
+      CULMINADO: 'Culminado', 
+      CANCELADO: 'Cancelado',
+      HOLD: 'En Espera',
+      PENDING: 'Pendiente',
+      CONFIRMED: 'Confirmada',
+      COMPLETED: 'Completada',
+      CANCELED: 'Cancelada',
+    };
+    
+    const statusToUse = normalizedStatus as string;
+    const style = styles[statusToUse] || 'bg-gray-100 border-gray-300 text-gray-800';
+    const label = labels[statusToUse] || statusToUse;
+    
+    return <span className={`${base} border ${style}`}>{label}</span>;
+  }
+
+  function getStatusInfo(s: ReservationStatus | string) {
+    // Normalizar el valor del status
+    let normalizedStatus = s;
+    if (s === 'ACTIVE' || s === 'RESERVADO' || s === 'PENDING') {
+      normalizedStatus = 'ACTIVO';
+    } else if (s === 'COMPLETED') {
+      normalizedStatus = 'CULMINADO';  
+    } else if (s === 'CANCELED') {
+      normalizedStatus = 'CANCELADO';
+    }
+    
+    const styles: Record<string,string> = {
+      ACTIVO:'bg-green-100 border-green-300 text-green-800',
+      CULMINADO:'bg-blue-100 border-blue-300 text-blue-800',
+      CANCELADO:'bg-red-100 border-red-300 text-red-800',
+      HOLD:'bg-amber-100 border-amber-300 text-amber-800',
+      PENDING:'bg-gray-100 border-gray-300 text-gray-800',
+      CONFIRMED:'bg-green-100 border-green-300 text-green-800',
+      COMPLETED:'bg-blue-100 border-blue-300 text-blue-800',
+      CANCELED:'bg-red-100 border-red-300 text-red-800',
+    };
+    const labels: Record<string,string> = {
+      ACTIVO: 'Activo',
+      CULMINADO: 'Culminado',
+      CANCELADO: 'Cancelado',
+      HOLD: 'En Espera',
+      PENDING: 'Pendiente',
+      CONFIRMED: 'Confirmada',
+      COMPLETED: 'Completada',
+      CANCELED: 'Cancelada',
+    };
+    
+    const statusToUse = normalizedStatus as string;
+    const className = styles[statusToUse] || 'bg-gray-100 border-gray-300 text-gray-800';
+    const label = labels[statusToUse] || statusToUse;
+    
+    return { className, label };
+  }
+
+  async function deleteReservationPermanently(id: string) {
+    try {
+      const response = await AuthClient.authenticatedFetch(`/api/reservas/${id}?permanent=true`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        // Recargar historial
+        fetchHistory();
+      } else {
+        alert('Error al eliminar la reserva');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al eliminar la reserva');
+    }
+  }
+
+  function formatHour(iso: string) {
+    const d = new Date(iso);
+    return d.toTimeString().slice(0,5);
+  }
+
+  // Funciones para autocompletado de socios
+  const filteredMembers = useMemo(() => {
+    if (!memberSearch.trim()) return members.slice(0, 10); // Mostrar los primeros 10 si no hay búsqueda
+    const search = memberSearch.toLowerCase();
+    return members.filter(m => 
+      m.nombres.toLowerCase().includes(search) ||
+      m.apellidos.toLowerCase().includes(search) ||
+      m.codigo.toLowerCase().includes(search)
+    ).slice(0, 10); // Limitar a 10 resultados
+  }, [memberSearch, members]);
+
+  function selectMember(member: typeof members[0]) {
+    setForm(f => ({
+      ...f,
+      memberId: member.id,
+      nombreContacto: `${member.nombres} ${member.apellidos}`
+    }));
+    setMemberSearch(`${member.nombres} ${member.apellidos} (${member.codigo})`);
+    setShowMemberDropdown(false);
+  }
+
+  function clearMemberSelection() {
+    setForm(f => ({...f, memberId: '', nombreContacto: ''}));
+    setMemberSearch('');
+  }
+
+  // Funciones para modales avanzados
+  function openDetailsModal(reservation: Reservation) {
+    setSelectedReservation(reservation);
+    setShowDetailsModal(true);
+  }
+
+  function openEditModal(reservation: Reservation) {
+    setSelectedReservation(reservation);
+    // Precargar el formulario con datos de la reserva
+    const start = new Date(reservation.start);
+    const end = new Date(reservation.end);
+    setForm({
+      resourceId: reservation.resourceId,
+      fecha: start.toISOString().slice(0,10),
+      inicioHora: start.toTimeString().slice(0,5),
+      finHora: end.toTimeString().slice(0,5),
+      memberId: reservation.memberId || '',
+      nombreContacto: reservation.nombreContacto || '',
+      contacto: reservation.contacto || '',
+      medioContacto: reservation.medioContacto || 'telefono',
+      invitados: reservation.invitados?.toString() || '',
+      adelanto: reservation.adelanto?.toString() || '',
+      montoTotal: reservation.montoTotal?.toString() || '',
+      status: reservation.status,
+      notas: reservation.notas || '',
+    });
+    
+    // Si hay miembro asociado, cargar su info en el search
+    if (reservation.memberId) {
+      const member = members.find(m => m.id === reservation.memberId);
+      if (member) {
+        setMemberSearch(`${member.nombres} ${member.apellidos} (${member.codigo})`);
+      }
+    } else {
+      setMemberSearch('');
+    }
+    
+    setShowEditModal(true);
+  }
+
+  function closeModals() {
+    setShowDetailsModal(false);
+    setShowEditModal(false);
+    setSelectedReservation(null);
+    setMemberSearch('');
+    setShowMemberDropdown(false);
+  }
+
+  // Función para verificar disponibilidad
+  async function checkAvailability(resourceId: string, start: Date, end: Date, excludeId?: string): Promise<boolean> {
+    try {
+      const res = await AuthClient.authenticatedFetch(`/api/reservas/availability`, {
+        method: 'POST',
+        body: JSON.stringify({
+          resourceId,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          excludeId
+        })
+      });
+      
+      const data = await res.json();
+      return res.ok && data.available;
+    } catch (e) {
+      console.error('Error checking availability:', e);
+      return false;
+    }
+  }
+
+  // Función para mostrar conflictos
+  function showConflictWarning(conflicts: any[]) {
+    const conflictList = conflicts.map(c => 
+      `• ${c.nombreContacto || 'Sin nombre'} - ${formatHour(c.start)}-${formatHour(c.end)}`
+    ).join('\n');
+    
+    return confirm(`⚠️ CONFLICTO DE HORARIOS\n\nYa hay reservas en este horario:\n${conflictList}\n\n¿Deseas continuar de todas formas?`);
+  }
+
+  // Validaciones robustas
+  function validateReservationForm(): string[] {
+    const errors: string[] = [];
+    
+    if (!form.resourceId) errors.push('Debe seleccionar un salón');
+    if (!form.fecha) errors.push('Debe seleccionar una fecha');
+    if (!form.inicioHora) errors.push('Debe especificar hora de inicio');
+    if (!form.finHora) errors.push('Debe especificar hora de fin');
+    
+    if (form.fecha && form.inicioHora && form.finHora) {
+      const start = new Date(`${form.fecha}T${form.inicioHora}:00`);
+      const end = new Date(`${form.fecha}T${form.finHora}:00`);
+      
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        errors.push('Las fechas y horas no son válidas');
+      } else {
+        if (end <= start) errors.push('La hora de fin debe ser posterior a la de inicio');
+        
+        // Validar que no sea en el pasado (con margen de 1 hora)
+        const now = new Date();
+        const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+        if (start < oneHourAgo) {
+          errors.push('No se pueden crear reservas en el pasado');
+        }
+        
+        // Validar duración mínima y máxima
+        const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        if (durationHours < 0.5) errors.push('La duración mínima es de 30 minutos');
+        if (durationHours > 24) errors.push('La duración máxima es de 24 horas');
+      }
+    }
+    
+    // Validar campos numéricos
+    if (form.invitados && (isNaN(Number(form.invitados)) || Number(form.invitados) < 0)) {
+      errors.push('El número de invitados debe ser válido');
+    }
+    
+    if (form.montoTotal && (isNaN(Number(form.montoTotal)) || Number(form.montoTotal) < 0)) {
+      errors.push('El monto total debe ser válido');
+    }
+    
+    if (form.adelanto && (isNaN(Number(form.adelanto)) || Number(form.adelanto) < 0)) {
+      errors.push('El adelanto debe ser válido');
+    }
+    
+    if (form.adelanto && form.montoTotal && Number(form.adelanto) > Number(form.montoTotal)) {
+      errors.push('El adelanto no puede ser mayor al monto total');
+    }
+    
+    // Validar que tenga al menos un contacto
+    if (!form.nombreContacto?.trim() && !form.contacto?.trim()) {
+      errors.push('Debe especificar al menos un nombre de contacto o información de contacto');
+    }
+    
+    return errors;
+  }
+
+  async function updateReservation() {
+    if (!selectedReservation) return;
+    
+    // Validar formulario
+    const validationErrors = validateReservationForm();
+    if (validationErrors.length > 0) {
+      return alert('Errores en el formulario:\n\n• ' + validationErrors.join('\n• '));
+    }
+
+    const start = new Date(`${form.fecha}T${form.inicioHora}:00`);
+    const end = new Date(`${form.fecha}T${form.finHora}:00`);
+
+    // Verificar disponibilidad solo si cambió el horario o salón
+    const originalStart = new Date(selectedReservation.start);
+    const originalEnd = new Date(selectedReservation.end);
+    const hasTimeChanged = start.getTime() !== originalStart.getTime() || 
+                          end.getTime() !== originalEnd.getTime() ||
+                          form.resourceId !== selectedReservation.resourceId;
+
+    if (hasTimeChanged) {
+      // Verificar conflictos
+      const conflictingReservations = reservas.filter(r => 
+        r.id !== selectedReservation.id && 
+        r.resourceId === form.resourceId &&
+        r.status !== 'CANCELED' &&
+        new Date(r.start) < end && 
+        new Date(r.end) > start
+      );
+
+      if (conflictingReservations.length > 0) {
+        if (!showConflictWarning(conflictingReservations)) {
+          return; // Usuario decidió no continuar
+        }
+      }
+    }
+    
+    setSaving(true);
+    try {
+      const payload = {
+        resourceId: form.resourceId,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        memberId: form.memberId || undefined,
+        nombreContacto: form.nombreContacto || undefined,
+        contacto: form.contacto || undefined,
+        medioContacto: form.medioContacto,
+        invitados: form.invitados ? Number(form.invitados) : undefined,
+        adelanto: form.adelanto ? Number(form.adelanto) : undefined,
+        montoTotal: form.montoTotal ? Number(form.montoTotal) : undefined,
+        status: form.status,
+        notas: form.notas || undefined,
+      };
+      
+      const res = await AuthClient.authenticatedFetch(`/api/reservas/${selectedReservation.id}`, {
+        method: 'PATCH', 
+        body: JSON.stringify(payload),
+      });
+      
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error(data);
+        return alert(data?.msg || 'No se pudo actualizar la reserva');
+      }
+      
+      alert('Reserva actualizada exitosamente');
+      closeModals();
+      await fetchReservas();
+    } catch (e: any) {
+      console.error(e); 
+      alert(e?.message || 'Error actualizando reserva');
+    } finally { 
+      setSaving(false); 
+    }
+  }
+
+  // Funciones stub para mantener compatibilidad (ya no se usan)
+  function closeNew() { /* no-op */ }
+  function saveNew() { /* no-op */ }
+
+  // cancelar
+  async function cancelReservation(id: string) {
+    const ok = confirm('¿Cancelar esta reserva?');
+    if (!ok) return;
+    try {
+      const res = await AuthClient.authenticatedFetch(`/api/reservas/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const t = await res.text(); throw new Error(t);
+      }
+      await fetchReservas();
+    } catch(e:any) {
+      alert(e?.message || 'No se pudo cancelar');
+    }
+  }
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Encabezado */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Reservas</h1>
+            <p className="text-gray-600">Gestioná salones, reservas y pagos parciales.</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowHistoryModal(true)}
+              className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Historial de Reservas
+            </button>
+          </div>
+        </div>
+
+
+
+        {/* Filtros */}
+        <div className="bg-white p-4 rounded-lg shadow flex flex-wrap gap-3 items-end">
+          <div>
+            <label className="text-sm text-gray-600">Salón</label>
+            <select value={venueId} onChange={(e)=> setVenueId(e.target.value)} className="block border rounded px-3 py-2">
+              {venues.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600">Estado</label>
+            <select value={status} onChange={(e)=> setStatus(e.target.value)} className="block border rounded px-3 py-2">
+              <option value="">Todos</option>
+              <option value="PENDING">PENDING</option>
+              <option value="HOLD">HOLD</option>
+              <option value="CONFIRMED">CONFIRMED</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="CANCELED">CANCELED</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600">Buscar</label>
+            <input value={q} onChange={(e)=> setQ(e.target.value)} placeholder="Cliente, título..." className="border rounded px-3 py-2" />
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <button onClick={prevMonth} className="border rounded p-2 hover:bg-gray-50" title="Mes anterior">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="px-3 font-medium min-w-[140px] text-center">
+              {current.toLocaleString(undefined, { month: 'long', year: 'numeric' })}
+            </div>
+            <input
+              type="date"
+              value={current.toISOString().slice(0,10)}
+              onChange={(e) => {
+                if (!e.target.value) return;
+                const [y, m, d] = e.target.value.split('-').map(v => parseInt(v,10));
+                setCurrent(new Date(y, m-1, 1));
+              }}
+              className="border rounded px-2 py-1 text-sm w-32"
+              aria-label="Ir a fecha específica"
+              title="Seleccionar mes y año"
+            />
+            <button onClick={nextMonth} className="border rounded p-2 hover:bg-gray-50" title="Mes siguiente">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Calendario mensual simple */}
+        <div className="bg-white rounded-lg shadow p-3">
+          <div className="grid grid-cols-7 gap-1 text-xs text-gray-500 px-1">
+            {['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d => <div key={d} className="px-1 py-1">{d}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {monthMatrix.map((row, wi) => (
+              <div key={wi} className="contents">
+                {row.map((day, di) => {
+                  const isOther = day.getMonth() !== current.getMonth();
+                  const key = dayKey(day);
+                  const dayItems = reservasByDay.get(key) || [];
+                  const dayStatus = getDayStatus.get(key);
+                  
+                  let dayBorderClass = 'border-gray-200';
+                  let dayBgClass = '';
+                  
+                  if (!isOther) {
+                    switch (dayStatus) {
+                      case 'conflict':
+                        dayBorderClass = 'border-red-300 border-2';
+                        dayBgClass = 'bg-red-50';
+                        break;
+                      case 'busy':
+                        dayBorderClass = 'border-amber-300 border-2';
+                        dayBgClass = 'bg-amber-50';
+                        break;
+                      case 'available':
+                        if (dayItems.length > 0) {
+                          dayBorderClass = 'border-green-300';
+                          dayBgClass = 'bg-green-50';
+                        }
+                        break;
+                    }
+                  }
+                  
+                  return (
+                    <div key={di} className={`min-h-[90px] border rounded p-1 relative ${isOther ? 'bg-gray-50 text-gray-400' : dayBgClass} ${dayBorderClass}`}>
+                      <div className="flex items-center justify-between text-xs font-medium">
+                        <span>{day.getDate()}</span>
+                        {!isOther && dayStatus && dayStatus !== 'available' && (
+                          <span className={`w-2 h-2 rounded-full ${
+                            dayStatus === 'conflict' ? 'bg-red-500' : 'bg-amber-500'
+                          }`} title={dayStatus === 'conflict' ? 'Conflictos detectados' : 'Día ocupado'}></span>
+                        )}
+                      </div>
+                      <div className="mt-1 flex flex-col gap-1">
+                        {dayItems.slice(0,3).map(r => {
+                          const venue = venues.find(v => v.id === r.resourceId);
+                          return (
+                            <div key={r.id} className="text-[11px] border rounded px-1 py-[2px] bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                                 onClick={() => openDetailsModal(r)}>
+                              <div className="truncate font-medium">{r.nombreContacto || 'Sin contacto'}</div>
+                              <div className="truncate text-gray-600">{venue?.nombre || 'Salón'}</div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-800">{formatHour(r.start)}–{formatHour(r.end)}</span>
+                                {statusChip(r.status)}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {dayItems.length > 3 && (
+                          <div className="text-[11px] text-gray-500">+{dayItems.length-3} más</div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Listado */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {loading ? (
+            <div className="p-6 text-gray-500">Cargando…</div>
+          ) : reservas.length === 0 ? (
+            <div className="p-6 text-gray-500">Sin reservas</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Fecha</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Horario</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Salón</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Contacto</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Notas</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-600">Total</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-600">Adelanto</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-600">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {reservas.map(r => {
+                    const v = venues.find(x => x.id === r.resourceId);
+                    const d = new Date(r.start);
+                    return (
+                      <tr key={r.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-2">
+                          <div className="text-sm font-medium">{d.toLocaleDateString()}</div>
+                          <div className="text-xs text-gray-500">{d.toLocaleDateString(undefined, {weekday: 'short'})}</div>
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="text-sm font-medium">{formatHour(r.start)}–{formatHour(r.end)}</div>
+                          <div className="text-xs text-gray-500">
+                            {Math.round((new Date(r.end).getTime() - new Date(r.start).getTime()) / (1000 * 60 * 60 * 100)) / 10}h
+                          </div>
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="text-sm font-medium">{v?.nombre || '—'}</div>
+                          <div className="text-xs text-gray-500">Cap: {v?.capacidad || '—'}</div>
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="text-sm font-medium">{r.nombreContacto || '—'}</div>
+                          {r.contacto && (
+                            <div className="text-xs text-gray-500">{r.medioContacto}: {r.contacto}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="text-sm text-gray-600 max-w-xs truncate" title={r.notas}>
+                            {r.notas || '—'}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <div className="text-sm font-medium">{formatCurrency(r.montoTotal || 0)}</div>
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <div className="text-sm font-medium">{formatCurrency(r.adelanto || 0)}</div>
+                          {r.adelanto && r.montoTotal && (
+                            <div className="text-xs text-gray-500">
+                              {Math.round((r.adelanto / r.montoTotal) * 100)}%
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <div className="inline-block">
+                            <button onClick={e => toggleMenu(r.id, e)} className="p-1 text-gray-600 hover:text-gray-900">
+                              <MoreVertical className="w-5 h-5"/>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Modal Nueva reserva eliminado - se crean desde página de socios */}
+      {false && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={closeNew}>
+          <div className="w-full max-w-2xl bg-white rounded-lg shadow" onClick={(e)=> e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">Nueva reserva</h3>
+              <button onClick={closeNew} className="text-gray-400 hover:text-gray-600" aria-label="Cerrar"><X className="w-5 h-5"/></button>
+            </div>
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[75vh] overflow-y-auto">
+              <div>
+                <label className="text-sm text-gray-600">Salón *</label>
+                <select value={form.resourceId} onChange={(e)=> setForm(p => ({...p, resourceId: e.target.value}))}
+                        className="w-full border rounded px-3 py-2">
+                  <option value="">— Elegir —</option>
+                  {venues.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Fecha *</label>
+                <input type="date" value={form.fecha} onChange={(e)=> setForm(p => ({...p, fecha: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Desde *</label>
+                <input type="time" value={form.inicioHora} onChange={(e)=> setForm(p => ({...p, inicioHora: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Hasta *</label>
+                <input type="time" value={form.finHora} onChange={(e)=> setForm(p => ({...p, finHora: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div className="sm:col-span-2 relative" ref={dropdownRef}>
+                <label className="text-sm text-gray-600">Seleccionar Socio/Miembro</label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={memberSearch}
+                    onChange={(e) => {
+                      setMemberSearch(e.target.value);
+                      setShowMemberDropdown(true);
+                    }}
+                    onFocus={() => setShowMemberDropdown(true)}
+                    placeholder="Buscar por nombre, apellido o código..."
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  {form.memberId && (
+                    <button
+                      type="button"
+                      onClick={clearMemberSelection}
+                      className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+                      aria-label="Limpiar selección"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+                
+                {showMemberDropdown && filteredMembers.length > 0 && (
+                  <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto mt-1">
+                    {filteredMembers.map(member => (
+                      <div
+                        key={member.id}
+                        onClick={() => selectMember(member)}
+                        className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-0"
+                      >
+                        <div className="font-medium">{member.nombres} {member.apellidos}</div>
+                        <div className="text-sm text-gray-600">
+                          Código: {member.codigo} • {member.subcategoria}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Nombre de contacto</label>
+                <input type="text" value={form.nombreContacto} onChange={(e)=> setForm(p => ({...p, nombreContacto: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"
+                       placeholder="Nombre completo del contacto"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Contacto</label>
+                <input type="text" value={form.contacto} onChange={(e)=> setForm(p => ({...p, contacto: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Medio de contacto</label>
+                <select value={form.medioContacto} onChange={(e)=> setForm(p => ({...p, medioContacto: e.target.value as 'telefono' | 'email' | 'whatsapp' | 'presencial' | 'otro'}))}
+                        className="w-full border rounded px-3 py-2">
+                  <option value="telefono">Teléfono</option>
+                  <option value="email">Email</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="presencial">Presencial</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Invitados</label>
+                <input type="number" value={form.invitados} onChange={(e)=> setForm(p => ({...p, invitados: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Monto Total (Gs.)</label>
+                <input type="number" value={form.montoTotal} onChange={(e)=> setForm(p => ({...p, montoTotal: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Adelanto (Gs.)</label>
+                <input type="number" value={form.adelanto} onChange={(e)=> setForm(p => ({...p, adelanto: e.target.value}))}
+                       className="w-full border rounded px-3 py-2"/>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Estado</label>
+                <select value={form.status} onChange={(e)=> setForm(p => ({...p, status: e.target.value as ReservationStatus}))}
+                        className="w-full border rounded px-3 py-2">
+                  <option value="PENDING">PENDING</option>
+                  <option value="HOLD">HOLD</option>
+                  <option value="CONFIRMED">CONFIRMED</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="text-sm text-gray-600">Notas</label>
+                <textarea value={form.notas} onChange={(e)=> setForm(p => ({...p, notas: e.target.value}))}
+                          className="w-full border rounded px-3 py-2" rows={3}/>
+              </div>
+            </div>
+            <div className="p-4 border-t flex justify-end gap-2">
+              <button onClick={closeNew} className="px-4 py-2 border rounded hover:bg-gray-50">Cancelar</button>
+              <button onClick={saveNew} disabled={saving} className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+                {saving ? 'Guardando…' : 'Guardar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalles */}
+      {showDetailsModal && selectedReservation && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={closeModals}>
+          <div className="w-full max-w-2xl bg-white rounded-lg shadow" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">Detalles de Reserva</h3>
+              <button onClick={closeModals} className="text-gray-400 hover:text-gray-600" aria-label="Cerrar">
+                <X className="w-5 h-5"/>
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Salón</label>
+                  <p className="text-sm">{venues.find(v => v.id === selectedReservation.resourceId)?.nombre || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Fecha</label>
+                  <p className="text-sm">{new Date(selectedReservation.start).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Horario</label>
+                  <p className="text-sm">
+                    {formatHour(selectedReservation.start)} - {formatHour(selectedReservation.end)}
+                    <span className="text-gray-500 ml-2">
+                      ({Math.round((new Date(selectedReservation.end).getTime() - new Date(selectedReservation.start).getTime()) / (1000 * 60 * 60 * 100)) / 10}h)
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Nombre de Contacto</label>
+                  <p className="text-sm">{selectedReservation.nombreContacto || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Contacto</label>
+                  <p className="text-sm">
+                    {selectedReservation.contacto ? 
+                      `${selectedReservation.medioContacto}: ${selectedReservation.contacto}` : '—'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Monto Total</label>
+                  <p className="text-sm font-medium">{formatCurrency(selectedReservation.montoTotal || 0)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Adelanto</label>
+                  <p className="text-sm">
+                    {formatCurrency(selectedReservation.adelanto || 0)}
+                    {selectedReservation.adelanto && selectedReservation.montoTotal && (
+                      <span className="text-gray-500 ml-2">
+                        ({Math.round((selectedReservation.adelanto / selectedReservation.montoTotal) * 100)}%)
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Saldo Pendiente</label>
+                  <p className="text-sm font-medium">
+                    {formatCurrency((selectedReservation.montoTotal || 0) - (selectedReservation.adelanto || 0))}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Estado</label>
+                  <div className="text-sm mt-1">
+                    {statusChip(selectedReservation.status)}
+                  </div>
+                </div>
+              </div>
+              
+              {selectedReservation.notas && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Notas</label>
+                  <p className="text-sm bg-gray-50 p-3 rounded">{selectedReservation.notas}</p>
+                </div>
+              )}
+
+              <div className="text-xs text-gray-500 pt-4 border-t">
+                <p>Creada: {new Date(selectedReservation.createdAt).toLocaleString()}</p>
+                <p>Actualizada: {new Date(selectedReservation.updatedAt).toLocaleString()}</p>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t flex justify-end gap-2">
+              <button onClick={closeModals} className="px-4 py-2 border rounded hover:bg-gray-50">
+                Cerrar
+              </button>
+              <button 
+                onClick={() => {closeModals(); openEditModal(selectedReservation);}} 
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Editar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edición */}
+      {showEditModal && selectedReservation && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={closeModals}>
+          <div className="w-full max-w-4xl bg-white rounded-lg shadow max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+
+            
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">📅 Configurar Reserva</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Complete los detalles para la reserva del servicio
+                  </p>
+                </div>
+                <button 
+                  onClick={closeModals} 
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Formulario con los mismos campos que la página de socios */}
+              <div className="space-y-4">
+                {/* Espacio/Venue */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Espacio *
+                  </label>
+                  <select
+                    value={form.resourceId}
+                    onChange={(e) => setForm(p => ({ ...p, resourceId: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">— Seleccionar espacio —</option>
+                    {venues.map(venue => (
+                      <option key={venue.id} value={venue.id}>
+                        {venue.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Fecha */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha *
+                  </label>
+                  <input
+                    type="date"
+                    value={form.fecha}
+                    onChange={(e) => setForm(p => ({ ...p, fecha: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Horarios */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hora de inicio *
+                    </label>
+                    <input
+                      type="time"
+                      value={form.inicioHora}
+                      onChange={(e) => setForm(p => ({ ...p, inicioHora: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hora de fin *
+                    </label>
+                    <input
+                      type="time"
+                      value={form.finHora}
+                      onChange={(e) => setForm(p => ({ ...p, finHora: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Estado */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Estado *
+                  </label>
+                  <select
+                    value={form.status || 'ACTIVO'}
+                    onChange={(e) => setForm(p => ({ ...p, status: e.target.value as ReservationStatus }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="ACTIVO">Activo</option>
+                    <option value="CULMINADO">Culminado</option>
+                    <option value="CANCELADO">Cancelado</option>
+                  </select>
+                </div>
+
+                {/* Observaciones/Notas */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Notas
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={form.notas}
+                    onChange={(e) => setForm(p => ({ ...p, notas: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Detalles del evento, ej: 15 años, boda, etc..."
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Nota:</strong> Estos datos se guardarán con el concepto. 
+                    La reserva real se creará en el sistema cuando se procese el pago.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Botones */}
+              <div className="flex items-center gap-3 mt-6 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => updateReservation()}
+                  disabled={saving}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50"
+                >
+                  {saving ? '💾 Guardando...' : '💾 Actualizar Datos'}
+                </button>
+                <button
+                  onClick={closeModals}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Historial */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowHistoryModal(false)}>
+          <div className="w-full max-w-6xl bg-white rounded-lg shadow max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">📋 Historial de Reservas</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Reservas culminadas y canceladas
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowHistoryModal(false)} 
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Filtros */}
+              <div className="mb-4">
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Buscar en historial
+                    </label>
+                    <input
+                      type="text"
+                      value={historySearch}
+                      onChange={(e) => setHistorySearch(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && fetchHistory()}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Buscar por contacto, notas, etc..."
+                    />
+                  </div>
+                  <button
+                    onClick={fetchHistory}
+                    disabled={historyLoading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {historyLoading ? 'Buscando...' : 'Buscar'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Tabla de Historial */}
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Fecha</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Salón</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Contacto</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Notas</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600">Estado</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-gray-600">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {historyLoading ? (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                          Cargando historial...
+                        </td>
+                      </tr>
+                    ) : historyReservas.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                          No se encontraron reservas en el historial
+                        </td>
+                      </tr>
+                    ) : (
+                      historyReservas.map(r => {
+                        const v = venues.find(x => x.id === r.resourceId);
+                        const d = new Date(r.start);
+                        return (
+                          <tr key={r.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-2">
+                              <div className="text-sm font-medium">{d.toLocaleDateString()}</div>
+                              <div className="text-xs text-gray-500">
+                                {formatHour(r.start)}–{formatHour(r.end)}
+                              </div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="text-sm font-medium">{v?.nombre || '—'}</div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="text-sm font-medium">{r.nombreContacto || '—'}</div>
+                              {r.contacto && (
+                                <div className="text-xs text-gray-500">{r.medioContacto}: {r.contacto}</div>
+                              )}
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="text-sm text-gray-600 max-w-xs" title={r.notas}>
+                                {r.notas || '—'}
+                              </div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <span className={`border px-2 py-0.5 rounded text-xs font-medium ${getStatusInfo(r.status).className}`}>
+                                {getStatusInfo(r.status).label}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 text-right">
+                              <button
+                                onClick={() => {
+                                  if (confirm('¿Estás seguro de eliminar permanentemente esta reserva del historial?')) {
+                                    deleteReservationPermanently(r.id);
+                                  }
+                                }}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Eliminar
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Menú de acciones flotante */}
+      {openMenuId && menuPosition && (
+        <div
+          className="menu-action"
+          style={{
+            position: 'fixed',
+            top: menuPosition.top,
+            left: menuPosition.left,
+            minWidth: '12rem',
+            background: 'white',
+            borderRadius: '0.5rem',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.25)',
+            border: '1px solid #e5e7eb',
+            zIndex: 9999,
+          }}
+        >
+          <button
+            onClick={() => { 
+              setOpenMenuId(null); 
+              setMenuPosition(null); 
+              const reservation = reservas.find(r => r.id === openMenuId);
+              if (reservation) openDetailsModal(reservation);
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+          >Ver Detalles</button>
+          <button
+            onClick={() => { 
+              setOpenMenuId(null); 
+              setMenuPosition(null); 
+              const reservation = reservas.find(r => r.id === openMenuId);
+              if (reservation) openEditModal(reservation);
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+          >Editar</button>
+          <button
+            onClick={() => { 
+              setOpenMenuId(null); 
+              setMenuPosition(null); 
+              cancelReservation(openMenuId);
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+          >Cancelar</button>
+        </div>
+      )}
+      
+    </AdminLayout>
+  );
+}

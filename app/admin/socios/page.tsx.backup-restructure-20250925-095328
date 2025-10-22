@@ -1,0 +1,3524 @@
+'use client';
+
+import AdminLayout from '@/components/AdminLayout';
+import { AuthClient } from '@/lib/auth-client';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { formatCurrency, gsFormat, gsParse, xround } from '@/lib/utils';
+import { ServiceType, PaymentItem } from '@/lib/types';
+import { 
+  getPrecioSegunTipoMiembro, 
+  calcularVencimiento, 
+  calcularDiasEntreFechas,
+  crearPaymentItemDefault,
+  convertirTipoAPeriodicidad 
+} from '@/lib/service-utils';
+import {
+  Plus, Search, Download, Filter, MoreVertical, X, ChevronDown, ChevronUp, User,
+  CreditCard, Minus, Plus as PlusIcon, UserPlus
+} from 'lucide-react';
+import Link from 'next/link';
+
+import { 
+  ConceptoItem, 
+  createEmptyConcepto, 
+  calculateTotal, 
+  getNumericValueSafe, 
+  hasDuplicateService, 
+  isServiceDuplicate,
+  calcularVencimientoAutomatico,
+  actualizarVencimientoSiEsAutomatico,
+  marcarVencimientoComoManual,
+  cryptoRandom
+} from '@/lib/concept-helpers';
+
+// === Tipos ===
+type MovementType = 'DEBIT' | 'CREDIT';
+
+interface Movement {
+  id: string;
+  memberId: string;
+  fecha: string;
+  concepto: string;
+  tipo: MovementType;
+  monto: number;
+  origen?: string;
+  refId?: string;
+  vencimiento?: string;
+  paidAmount?: number;
+  observaciones?: string;
+}
+
+interface Member {
+  id: string;
+  codigo: string;
+  nombres: string;
+  apellidos: string;
+  ci: string;
+  ruc?: string;
+  categoria: string;
+  subcategoria: string;
+  telefono?: string;
+  email?: string;
+  estado: string;
+  alta: string;
+  foto?: string;
+  deudaTotal?: number;
+}
+
+interface Collector {
+  id: string;
+  codigo: string;
+  nombres: string;
+  apellidos: string;
+  activo?: boolean;
+}
+
+interface Service {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  precioSocio?: number;
+  precioNoSocio?: number;
+  tipo: ServiceType;
+  obligatorio?: boolean;
+  aplicaA?: string[];
+  comisionCobrador?: number;
+  activo: boolean;
+  categoria?: string;
+  socios?: boolean;
+  noSocios?: boolean;
+}
+
+interface PaymentMethod {
+  id: string;
+  nombre: string;
+  activo?: boolean;
+}
+
+interface Subscription {
+  id: string;
+  serviceId: string;
+  active: boolean;
+  vencimiento?: string;
+  [key: string]: any;
+}
+
+// ===== Helpers comunes =====
+function normalizeTipoMovimiento(t: string): MovementType {
+  const u = String(t || '').toUpperCase();
+  if (u === 'DEBIT' || u === 'DEBE') return 'DEBIT';
+  if (u === 'CREDIT' || u === 'HABER') return 'CREDIT';
+  return 'DEBIT';
+}
+
+function calcularEstadoPorVencimientos(movs: any[]): 'AL_DIA' | 'ATRASADO' {
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const debPend = movs.filter(m => {
+    const esDebito = normalizeTipoMovimiento(m.tipo) === 'DEBIT';
+    if (!esDebito) return false;
+    const monto = Number(m.monto || 0);
+    const pagado = Number(m.paidAmount || 0);
+    return (monto - pagado) > 0;
+  });
+  if (debPend.length === 0) return 'AL_DIA';
+  for (const d of debPend) {
+    if (d.vencimiento) {
+      const v = new Date(d.vencimiento); v.setHours(0,0,0,0);
+      if (v < hoy) return 'ATRASADO';
+    }
+  }
+  return 'AL_DIA';
+}
+
+function addDays(isoDate: string | null | undefined, days: number) {
+  if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return '';
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return dt.toISOString().slice(0, 10);
+}
+
+function nSafe(v: string | number | null | undefined): number {
+  const n = typeof v === 'string' ? Number(v) : (v ?? 0 as number);
+  return Number.isFinite(n) ? n : 0;
+}
+// ===== Página =====
+export default function SociosPage() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategoria, setFilterCategoria] = useState('');
+  const [filterEstado, setFilterEstado] = useState('');
+  const [filterSubcategoria, setFilterSubcategoria] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Modal unificado
+  const [showChargeModal, setShowChargeModal] = useState(false);
+  const [selectedMemberForService, setSelectedMemberForService] = useState<Member | null>(null);
+  const [activeTab, setActiveTab] = useState<'unified'>('unified'); // UNIFICADO
+  
+  // ===== ESTADO UNIFICADO PARA TRANSACCIONES =====
+  interface UnifiedTransactionForm {
+    // Selector principal
+    condicion: 'CONTADO' | 'CREDITO';
+    
+    // Datos del servicio (comunes)
+    fecha: string;
+    servicioId: string;
+    concepto: string;
+    tipoServicio: 'MENSUAL' | 'ANUAL' | 'UNICO' | 'DIARIO';
+    monto: string;
+    dias?: number; // Para DIARIO
+    vencimiento: string;
+    observaciones: string;
+    
+    // Opciones de servicio
+    crearSuscripcion: boolean;
+    
+    // Pago parcial (solo CREDITO)
+    pagoAplicado: string; // Monto a pagar ahora en modo crédito
+    
+    // Información de pago (condicional)
+    metodoPago: string; // Puede ser "NINGUNO" en crédito sin pago
+    cobradorId: string; // Puede ser "NINGUNO" en crédito sin pago  
+    numeroRecibo: string;
+    referencia: string; // Para comprobantes de pago
+    permitirPagosParc: boolean; // Checkbox para habilitar pago parcial en CREDITO
+    
+    // Presupuesto adicional para deudas previas
+    presupuestoDeudas: string;
+    // Soporte para multiples conceptos por sección
+    conceptosContado?: ConceptoItem[];
+    conceptosCredito?: ConceptoItem[];
+  }
+
+  const [unifiedForm, setUnifiedForm] = useState<UnifiedTransactionForm>({
+    condicion: 'CONTADO',
+    fecha: new Date().toISOString().slice(0, 10),
+    servicioId: '',
+    concepto: '',
+    tipoServicio: 'MENSUAL',
+    monto: '',
+    dias: 1,
+    vencimiento: addDays(new Date().toISOString().slice(0, 10), 30),
+    observaciones: '',
+    crearSuscripcion: false,
+    pagoAplicado: '',
+    metodoPago: '',
+    cobradorId: '',
+    numeroRecibo: '',
+    referencia: '',
+    permitirPagosParc: false,
+    presupuestoDeudas: '',
+    // Inicializamos con un concepto por defecto para compatibilidad
+    conceptosContado: [
+      {
+        id: cryptoRandom(),
+        servicioId: '',
+        concepto: '',
+        tipoServicio: 'MENSUAL',
+        monto: '',
+        dias: 1,
+        vencimiento: addDays(new Date().toISOString().slice(0, 10), 30),
+        observaciones: '',
+      }
+    ],
+    conceptosCredito: [
+      {
+        id: cryptoRandom(),
+        servicioId: '',
+        concepto: '',
+        tipoServicio: 'MENSUAL',
+        monto: '',
+        dias: 1,
+        vencimiento: addDays(new Date().toISOString().slice(0, 10), 30),
+        observaciones: '',
+      }
+    ],
+  });
+
+  // Función auxiliar para crear concepto vacío con vencimiento automático
+  function createEmptyConceptoWithDate(fechaBase?: string) {
+    const concepto = createEmptyConcepto();
+    const fecha = fechaBase || unifiedForm.fecha || new Date().toISOString().slice(0, 10);
+    
+    // Calcular vencimiento automático para MENSUAL por defecto
+    const vencimientoAutomatico = calcularVencimientoAutomatico(fecha, 'MENSUAL');
+    return {
+      ...concepto,
+      vencimiento: vencimientoAutomatico,
+      vencimientoManual: false // Marcar como automático
+    };
+  }
+
+  // Helpers para manipular conceptos dentro de unifiedForm
+  function addConceptoToSection(section: 'CONTADO' | 'CREDITO') {
+    const newC = createEmptyConceptoWithDate();
+    setUnifiedForm(prev => {
+      if (section === 'CONTADO') {
+        const arr = (prev.conceptosContado || []).concat(newC);
+        return { ...prev, conceptosContado: arr };
+      } else {
+        const arr = (prev.conceptosCredito || []).concat(newC);
+        return { ...prev, conceptosCredito: arr };
+      }
+    });
+  }
+
+  function removeConceptoFromSection(section: 'CONTADO' | 'CREDITO', id: string) {
+    setUnifiedForm(prev => {
+      if (section === 'CONTADO') {
+        const arr = (prev.conceptosContado || []).filter(c => c.id !== id);
+        return { ...prev, conceptosContado: arr.length ? arr : [createEmptyConceptoWithDate()] };
+      } else {
+        const arr = (prev.conceptosCredito || []).filter(c => c.id !== id);
+        return { ...prev, conceptosCredito: arr.length ? arr : [createEmptyConceptoWithDate()] };
+      }
+    });
+  }
+
+  // Permite recalcular vencimiento automáticamente si se cambia servicio, tipo o fecha global
+  function updateConceptoInSection(section: 'CONTADO' | 'CREDITO', conceptoId: string, field: keyof ConceptoItem, value: any, autoVencimiento = false) {
+    setUnifiedForm(prev => {
+      const updateConceptos = (conceptos: ConceptoItem[] = []) => conceptos.map(c => {
+        if (c.id !== conceptoId) return c;
+        
+        let updatedConcepto = { ...c, [field]: value };
+        
+        // Si se está editando el vencimiento manualmente, marcarlo como manual
+        if (field === 'vencimiento' && !autoVencimiento) {
+          updatedConcepto = marcarVencimientoComoManual(updatedConcepto, value);
+        }
+        // Si se cambia el tipoServicio y el vencimiento no es manual, recalcular automáticamente
+        else if (field === 'tipoServicio' && prev.fecha) {
+          updatedConcepto = actualizarVencimientoSiEsAutomatico(
+            updatedConcepto, 
+            prev.fecha, 
+            value
+          );
+        }
+        // Si se cambian los días para tipo DIARIO y no es manual, recalcular
+        else if (field === 'dias' && updatedConcepto.tipoServicio === 'DIARIO' && prev.fecha) {
+          updatedConcepto = actualizarVencimientoSiEsAutomatico(
+            updatedConcepto,
+            prev.fecha,
+            updatedConcepto.tipoServicio
+          );
+        }
+        
+        return updatedConcepto;
+      });
+      
+      if (section === 'CONTADO') {
+        return ({ ...prev, conceptosContado: updateConceptos(prev.conceptosContado) });
+      }
+      return ({ ...prev, conceptosCredito: updateConceptos(prev.conceptosCredito) });
+    });
+  }
+
+  // Recalcula vencimiento de todos los conceptos al cambiar la fecha global
+  function handleFechaGlobalChange(newFecha: string) {
+    setUnifiedForm(prev => {
+      const updateVencs = (conceptos: ConceptoItem[] = []) => conceptos.map(c => {
+        // Solo recalcular si el vencimiento no fue editado manualmente
+        return actualizarVencimientoSiEsAutomatico(c, newFecha, c.tipoServicio);
+      });
+      return {
+        ...prev,
+        fecha: newFecha,
+        conceptosContado: updateVencs(prev.conceptosContado),
+        conceptosCredito: updateVencs(prev.conceptosCredito)
+      };
+    });
+  }
+
+  // Estados para validación y UX
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showFormValidation, setShowFormValidation] = useState(false);
+
+  // Modal registro no-socio
+  const [showNoSocioModal, setShowNoSocioModal] = useState(false);
+  const [noSocioForm, setNoSocioForm] = useState({
+    nombres: '',
+    apellidos: '',
+    ci: '',
+    telefono: '',
+    email: ''
+  });
+  const [ciValidationError, setCiValidationError] = useState('');
+
+  // Función para cerrar modal no-socio y limpiar estado
+  function closeNoSocioModal() {
+    setShowNoSocioModal(false);
+    setCiValidationError('');
+    setNoSocioForm({
+      nombres: '',
+      apellidos: '',
+      ci: '',
+      telefono: '',
+      email: ''
+    });
+  }
+
+  // Tab SERVICIO (se mantiene para casos “no contado”)
+  const [serviceForm, setServiceForm] = useState({
+    fecha: new Date().toISOString().slice(0, 10),
+    servicioId: '',
+    concepto: '',
+    monto: '',
+    tipoServicio: 'MENSUAL' as 'MENSUAL' | 'ANUAL' | 'UNICO' | 'DIARIO',
+    observaciones: '',
+    vencimiento: addDays(new Date().toISOString().slice(0, 10), 30),
+    makeSubscription: false,
+    autoDebit: true,
+  });
+  const [vencimientoTouched, setVencimientoTouched] = useState(false);
+
+  // Tab PAGO
+  interface PayItem {
+    id: string;
+    servicioId: string;
+    concepto: string;
+    tipoServicio: 'MENSUAL' | 'ANUAL' | 'UNICO' | 'DIARIO';
+    montoStr: string;
+    subId?: string;
+    currentDue?: string;
+    nextDue?: string;
+    vencimiento?: string;
+    dias?: number;
+  }
+  const [payItems, setPayItems] = useState<PayItem[]>([
+    { 
+      id: cryptoRandom(), 
+      servicioId: '', 
+      concepto: '', 
+      tipoServicio: 'MENSUAL', 
+      montoStr: '',
+      vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) // 30 días
+    }
+  ]);
+
+  const [paymentForm, setPaymentForm] = useState({
+    fecha: new Date().toISOString().slice(0, 10),
+    metodoPago: '',
+    cobradorId: '',
+    numeroRecibo: '',
+    observaciones: '',
+  });
+
+  // Presupuesto para pagar deudas antiguas (además de los conceptos al contado)
+  const [extraBudgetStr, setExtraBudgetStr] = useState('');
+
+  // Asignación a débitos (deudas previas)
+  const [loadingDebits, setLoadingDebits] = useState(false);
+  const [pendingDebits, setPendingDebits] = useState<Movement[]>([]);
+  const [allocations, setAllocations] = useState<Record<string, string>>({});
+
+  // Estados para selección de débitos y UI desplegable
+  const [selectedDebits, setSelectedDebits] = useState<string[]>([]); // IDs de débitos seleccionados
+  const [showDebtAssignment, setShowDebtAssignment] = useState(false); // Control de desplegable
+
+  // Estados para el modal de deudas pendientes
+  const [showDebtsModal, setShowDebtsModal] = useState(false);
+  const [selectedMemberForDebts, setSelectedMemberForDebts] = useState<Member | null>(null);
+  
+  // Estados para el formulario de pago de deudas
+  const [debtPaymentForm, setDebtPaymentForm] = useState({
+    fecha: new Date().toISOString().slice(0, 10),
+    montoAPagar: '',
+    metodoPago: '',
+    cobradorId: '',
+    numeroRecibo: '',
+    referencia: '',
+    observaciones: ''
+  });
+
+  // UI & otros
+  const [saving, setSaving] = useState(false);
+  const [deleteMsg, setDeleteMsg] = useState('');
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState<number>(1);
+  const [openMenuMemberId, setOpenMenuMemberId] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const actionsBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // Ledgers
+  const [memberDebtMap, setMemberDebtMap] = useState<
+    Record<string, { saldo: number; estadoCalc: 'AL_DIA' | 'ATRASADO' | 'SUSPENDIDO' }>
+  >({});
+
+  // ===== Helper Functions =====
+  function trimAllocations(
+    current: Record<string, string>,
+    debs: Movement[],
+    newTotal: number
+  ): Record<string, string> {
+    const ordered = debs.map(d => d.id);
+    let left = newTotal;
+    const next: Record<string, string> = {};
+    for (const id of ordered) {
+      const v = nSafe(current[id] || 0);
+      if (!v) continue;
+      if (left <= 0) { next[id] = ''; continue; }
+      const take = Math.min(v, left);
+      next[id] = take ? String(take) : '';
+      left -= take;
+    }
+    return next;
+  }
+
+  // ===== Effects =====
+  useEffect(() => {
+    loadMembersAndLedgers();
+    loadCollectors();
+    loadServices();
+    loadPaymentMethods();
+    const onDocClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (actionsBtnRef.current && actionsBtnRef.current.contains(target as Node)) return;
+      setOpenMenuMemberId(null);
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
+
+  // Vencimiento dinámico (Tab Servicio)
+  useEffect(() => {
+    if (vencimientoTouched) return;
+    const base = serviceForm.fecha;
+    if (!base || !/^\d{4}-\d{2}-\d{2}$/.test(base)) return;
+    const tipo = serviceForm.tipoServicio;
+    const next =
+      tipo === 'MENSUAL' ? addDays(base, 30) :
+      tipo === 'ANUAL'   ? addDays(base, 365) :
+      base;
+    setServiceForm((p) => ({ ...p, vencimiento: next || p.vencimiento }));
+  }, [serviceForm.fecha, serviceForm.tipoServicio, vencimientoTouched]);
+
+  // Si cambia el presupuesto adicional, recorto asignaciones a ese límite
+  useEffect(() => {
+    const budget = gsParse(extraBudgetStr);
+    setAllocations(prev => trimAllocations(prev, pendingDebits, budget));
+  }, [extraBudgetStr, pendingDebits]);
+
+  // ===== Loads =====
+  async function loadMembersAndLedgers() {
+    setLoading(true);
+    try {
+      const response = await AuthClient.authenticatedFetch('/api/members');
+      const data = await response.json();
+      const list: Member[] = Array.isArray(data) ? data : [];
+      setMembers(list);
+
+      const CONCURRENCY = 6;
+      const chunks: Member[][] = [];
+      for (let i = 0; i < list.length; i += CONCURRENCY) chunks.push(list.slice(i, i + CONCURRENCY));
+      const debtPairs: Array<[string, { saldo: number; estadoCalc: 'AL_DIA' | 'ATRASADO' | 'SUSPENDIDO' }]> = [];
+      for (const batch of chunks) {
+        const results = await Promise.all(
+          batch.map(async (m) => {
+            try {
+              let res = await AuthClient.authenticatedFetch(`/api/members/${m.id}/movements?pageSize=1000`);
+              if (!res.ok) res = await AuthClient.authenticatedFetch(`/api/movements?memberId=${encodeURIComponent(m.id)}`);
+              const ct = res.headers.get('content-type') || '';
+              if (!res.ok || !ct.includes('application/json')) throw new Error('fail');
+              const raw = await res.json();
+              const arr: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : [];
+              const movs: Movement[] = arr.map((mv: any, idx: number) => ({
+                id: String(mv.id ?? `${m.id}-${idx}`),
+                memberId: String(mv.memberId ?? m.id),
+                fecha: mv.fecha ?? mv.date ?? new Date().toISOString(),
+                concepto: String(mv.concepto ?? mv.description ?? ''),
+                tipo: normalizeTipoMovimiento(mv.tipo ?? mv.type ?? ''),
+                monto: Number(mv.monto ?? mv.amount ?? 0),
+                origen: mv.origen ?? mv.source ?? undefined,
+                refId: mv.refId ?? mv.referenceId ?? undefined,
+                vencimiento: mv.vencimiento ?? mv.dueDate ?? undefined,
+                paidAmount: Number(mv.paidAmount ?? 0),
+              }));
+              const debitos = movs.filter(x => normalizeTipoMovimiento(x.tipo as any) === 'DEBIT');
+              const deudaReal = debitos.reduce((acc, d) => acc + Math.max(0, xround(d.monto) - xround(d.paidAmount || 0)), 0);
+              const estadoCalc: 'AL_DIA' | 'ATRASADO' | 'SUSPENDIDO' =
+                m.estado === 'SUSPENDIDO' ? 'SUSPENDIDO' : calcularEstadoPorVencimientos(movs);
+              return [m.id, { saldo: deudaReal, estadoCalc }] as [string, { saldo: number; estadoCalc: 'AL_DIA' | 'ATRASADO' | 'SUSPENDIDO' }];
+            } catch {
+              const estadoCalc = m.estado === 'SUSPENDIDO' ? 'SUSPENDIDO' : (m.estado === 'ATRASADO' ? 'ATRASADO' : 'AL_DIA');
+              return [m.id, { saldo: m.deudaTotal ?? 0, estadoCalc }] as [string, { saldo: number; estadoCalc: 'AL_DIA' | 'ATRASADO' | 'SUSPENDIDO' }];
+            }
+          })
+        );
+        debtPairs.push(...results);
+      }
+      const map: Record<string, { saldo: number; estadoCalc: 'AL_DIA' | 'ATRASADO' | 'SUSPENDIDO' }> = {};
+      debtPairs.forEach(([id, val]) => (map[id] = val));
+      setMemberDebtMap(map);
+    } catch (e) {
+      console.error('Error loading members/ledgers:', e);
+      setMembers([]); setMemberDebtMap({});
+    } finally { setLoading(false); }
+  }
+
+  async function loadCollectors() {
+    try {
+      const res = await AuthClient.authenticatedFetch('/api/collectors');
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : [];
+      setCollectors(list.filter((c: Collector) => c.activo !== false));
+    } catch (e) {
+      console.error('Error loading collectors:', e);
+      setCollectors([]);
+    }
+  }
+
+  async function loadServices() {
+    try {
+      const res = await AuthClient.authenticatedFetch('/api/services');
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : [];
+      setServices(list.filter((s: any) => s.activo !== false));
+    } catch (e) {
+      console.error('Error loading services:', e);
+      setServices([]);
+    }
+  }
+
+  async function loadPaymentMethods() {
+    try {
+      const res = await AuthClient.authenticatedFetch('/api/payment-methods');
+      const data = await res.json();
+      const list: PaymentMethod[] = Array.isArray(data) ? data : [];
+      const actives = list.filter(pm => pm.activo !== false);
+      setPaymentMethods(actives.length ? actives : defaultPaymentMethods());
+      if (!actives.length) console.warn('payment-methods vacío, usando fallback.');
+    } catch {
+      setPaymentMethods(defaultPaymentMethods());
+    }
+  }
+  function defaultPaymentMethods(): PaymentMethod[] {
+    return [
+      { id: 'efectivo', nombre: 'Efectivo' },
+      { id: 'transferencia', nombre: 'Transferencia' },
+      { id: 'tarjeta', nombre: 'Tarjeta' },
+      { id: 'cheque', nombre: 'Cheque' },
+    ];
+  }
+
+  // ===== Subscripciones helpers =====
+  function periodDays(tipo: 'MENSUAL'|'ANUAL'|'UNICO'|'DIARIO'|undefined, dias?: number): number {
+    switch (tipo) {
+      case 'ANUAL': return 365;
+      case 'MENSUAL': return 30;
+      case 'DIARIO': return dias || 1;
+      case 'UNICO': 
+      default: return 0;
+    }
+  }
+  function subDue(sub: any): string | undefined {
+    return sub?.validUntil || sub?.nextDueDate || sub?.dueDate || sub?.vencimiento;
+  }
+  async function findActiveSubscription(memberId: string, serviceId: string) {
+    try {
+      let url = `/api/members/${encodeURIComponent(memberId)}/subscriptions?serviceId=${encodeURIComponent(serviceId)}&active=true`;
+      let res = await AuthClient.authenticatedFetch(url);
+      let data = await res.json().catch(()=>({}));
+      let arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+      if (!arr.length) {
+        // fallback: traer todas y filtrar por fecha
+        res = await AuthClient.authenticatedFetch(`/api/members/${encodeURIComponent(memberId)}/subscriptions`);
+        data = await res.json().catch(()=>({}));
+        arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+        const today = new Date().toISOString().slice(0,10);
+        arr = arr.filter((s: Subscription) => String(s.serviceId) === String(serviceId))
+                 .filter((s: Subscription) => {
+                   const v = subDue(s);
+                   return !v || v >= today || s.active === true;
+                 });
+      }
+      return arr[0] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  // ===== Abrir/Cerrar modal =====
+  const handleOpenCobranzaModal = async (member: Member) => {
+    setSelectedMemberForService(member);
+    setShowChargeModal(true);
+    setActiveTab('unified');
+    setShowFormValidation(false);
+    
+    // Cargar débitos pendientes automáticamente si el socio tiene deudas
+    if ((member.deudaTotal || 0) > 0 || (memberDebtMap[member.id]?.saldo || 0) > 0) {
+      loadPendingDebits(member.id);
+    }
+    
+    // Reseteamos el formulario unificado
+    setUnifiedForm({
+      condicion: 'CONTADO',
+      fecha: new Date().toISOString().slice(0, 10),
+      servicioId: '',
+      concepto: '',
+      tipoServicio: 'MENSUAL',
+      monto: '',
+      dias: 1,
+      vencimiento: addDays(new Date().toISOString().slice(0, 10), 30),
+      observaciones: '',
+      crearSuscripcion: false,
+      pagoAplicado: '',
+      metodoPago: paymentMethods[0]?.id || 'efectivo',
+      cobradorId: '',
+      numeroRecibo: '',
+      referencia: '',
+      permitirPagosParc: false,
+      presupuestoDeudas: '',
+      // Garantizar que al abrir el modal haya siempre un concepto inicial visible
+      conceptosContado: [ createEmptyConceptoWithDate() ],
+      conceptosCredito: [ createEmptyConceptoWithDate() ],
+    });
+    setAllocations({});
+    await loadPendingDebits(member.id);
+  };
+
+  const handleCloseCobranzaModal = () => {
+    setShowChargeModal(false);
+    setSelectedMemberForService(null);
+    setActiveTab('unified');
+    setPendingDebits([]);
+    setAllocations({});
+    setSelectedDebits([]); // Limpiar selección de débitos
+    setShowDebtAssignment(false); // Cerrar desplegable
+    setShowFormValidation(false); // Resetear validaciones
+    
+    // Reset formulario de pago de deudas
+    setDebtPaymentForm({
+      fecha: new Date().toISOString().slice(0, 10),
+      montoAPagar: '',
+      metodoPago: '',
+      cobradorId: '',
+      numeroRecibo: '',
+      referencia: '',
+      observaciones: ''
+    });
+    
+    // Resetear formulario unificado
+    setUnifiedForm({
+      condicion: 'CONTADO',
+      fecha: new Date().toISOString().slice(0, 10),
+      servicioId: '',
+      concepto: '',
+      tipoServicio: 'MENSUAL',
+      monto: '',
+      dias: 1,
+      vencimiento: addDays(new Date().toISOString().slice(0, 10), 30),
+      observaciones: '',
+      crearSuscripcion: false,
+      pagoAplicado: '',
+      metodoPago: '',
+      cobradorId: '',
+      numeroRecibo: '',
+      referencia: '',
+      permitirPagosParc: false,
+      presupuestoDeudas: '',
+      conceptosContado: [ createEmptyConceptoWithDate() ],
+      conceptosCredito: [ createEmptyConceptoWithDate() ],
+    });
+  };
+
+  // ===== Deudas pendientes =====
+  async function loadPendingDebits(memberId: string) {
+    setLoadingDebits(true);
+    try {
+      const res = await AuthClient.authenticatedFetch(`/api/members/${memberId}/movements?type=DEBIT`);
+      const ct = res.headers.get('content-type') || '';
+      const raw = ct.includes('application/json') ? await res.json() : {};
+      const arr: any[] = Array.isArray(raw) ? raw : Array.isArray(raw.items) ? raw.items : [];
+      const debs: Movement[] = arr.map((m: any) => ({
+        id: String(m.id),
+        memberId: String(m.memberId),
+        fecha: m.fecha,
+        concepto: m.concepto,
+        tipo: 'DEBIT' as MovementType,
+        monto: Number(m.monto || 0),
+        vencimiento: m.vencimiento,
+        paidAmount: Number(m.paidAmount || 0),
+        observaciones: m.observaciones || '',
+      })).filter(d => (d.paidAmount || 0) < (d.monto || 0));
+      debs.sort((a, b) => {
+        const af = new Date(a.fecha).getTime(); const bf = new Date(b.fecha).getTime();
+        if (af !== bf) return af - bf;
+        const av = a.vencimiento ? new Date(a.vencimiento).getTime() : Infinity;
+        const bv = b.vencimiento ? new Date(b.vencimiento).getTime() : Infinity;
+        return av - bv;
+      });
+      setPendingDebits(debs);
+    } catch (e) {
+      console.error('Error loading pending debits:', e);
+      setPendingDebits([]);
+    } finally { setLoadingDebits(false); }
+  }
+
+  // ===== Pago: items =====
+  function addPayItem() {
+    const vencimientoDefault = addDays(paymentForm.fecha, 30); // Default mensual
+    setPayItems(prev => [...prev, { 
+      id: cryptoRandom(), 
+      servicioId: '', 
+      concepto: '', 
+      tipoServicio: 'MENSUAL', 
+      montoStr: '',
+      vencimiento: vencimientoDefault
+    }]);
+  }
+  function removePayItem(id: string) {
+    setPayItems(prev => prev.filter(it => it.id !== id));
+  }
+
+  async function onSelectServiceForItem(idx: number, servicioId: string) {
+    const srv = services.find(s => s.id === servicioId);
+    if (!srv) return;
+
+    const tipo = (srv?.tipo || 'MENSUAL') as 'MENSUAL' | 'ANUAL' | 'UNICO' | 'DIARIO';
+    const concepto = srv?.nombre || '';
+
+    // Calcular precio según tipo de socio usando las nuevas utilidades
+    let precioCalculado: number;
+    try {
+      precioCalculado = getPrecioSegunTipoMiembro(srv, selectedMemberForService || undefined, false);
+    } catch (error) {
+      console.warn('Error al calcular precio:', error);
+      precioCalculado = srv.precio; // Fallback al precio base
+    }
+    
+    const montoStr = gsFormat(precioCalculado.toString());
+
+    let subId: string | undefined;
+    let currentDue: string | undefined;
+    let nextDue: string | undefined;
+    let vencimiento: string;
+    let dias: number | undefined;
+
+    // Calcular vencimiento inicial según el tipo
+    switch (tipo) {
+      case 'MENSUAL':
+        vencimiento = addDays(paymentForm.fecha, 30);
+        break;
+      case 'ANUAL':
+        vencimiento = addDays(paymentForm.fecha, 365);
+        break;
+      case 'DIARIO':
+        dias = 1;
+        vencimiento = addDays(paymentForm.fecha, 1);
+        break;
+      case 'UNICO':
+      default:
+        vencimiento = paymentForm.fecha;
+        break;
+    }
+
+    if (selectedMemberForService && servicioId && tipo !== 'UNICO') {
+      const sub = await findActiveSubscription(selectedMemberForService.id, servicioId);
+      if (sub) {
+        subId = String(sub.id);
+        currentDue = subDue(sub);
+        const days = periodDays(tipo, dias);
+        nextDue = currentDue ? addDays(currentDue, days) : addDays(paymentForm.fecha, days);
+        
+        // Para suscripciones existentes, mantener el patrón de vencimiento
+        if (currentDue) {
+          vencimiento = addDays(currentDue, days);
+        }
+      } else {
+        nextDue = vencimiento;
+      }
+    }
+
+    setPayItems(prev => prev.map((it,i) => i === idx ? {
+      ...it, servicioId, concepto, tipoServicio: tipo, montoStr, subId, currentDue, nextDue, vencimiento, dias
+    } : it));
+  }
+
+  function setItemAmount(idx: number, raw: string) {
+    const pretty = gsFormat(raw);
+    setPayItems(prev => prev.map((it,i) => i===idx ? ({ ...it, montoStr: pretty }) : it));
+  }
+
+  // Nuevas funciones para manejo de tipo DIARIO y vencimientos
+  function onChangeTipoServicio(idx: number, nuevoTipo: ServiceType) {
+    setPayItems(prev => prev.map((it, i) => {
+      if (i !== idx) return it;
+      
+      const fechaPago = new Date(paymentForm.fecha);
+      let nuevoVencimiento: string;
+      let nuevasDias: number | undefined = it.dias;
+      
+      // Calcular vencimiento según el nuevo tipo
+      switch (nuevoTipo) {
+        case 'MENSUAL':
+          nuevoVencimiento = addDays(paymentForm.fecha, 30);
+          nuevasDias = undefined;
+          break;
+        case 'ANUAL':
+          nuevoVencimiento = addDays(paymentForm.fecha, 365);
+          nuevasDias = undefined;
+          break;
+        case 'DIARIO':
+          nuevasDias = it.dias || 1;
+          nuevoVencimiento = addDays(paymentForm.fecha, nuevasDias);
+          break;
+        case 'UNICO':
+        default:
+          nuevoVencimiento = paymentForm.fecha;
+          nuevasDias = undefined;
+          break;
+      }
+
+      // Recalcular precio si el servicio tiene el mismo tipo
+      let nuevoMontoStr = it.montoStr;
+      if (it.servicioId) {
+        const srv = services.find(s => s.id === it.servicioId);
+        if (srv && srv.tipo === nuevoTipo) {
+          // Solo recalcular si el tipo coincide con el tipo nativo del servicio
+          try {
+            const precioCalculado = getPrecioSegunTipoMiembro(srv, selectedMemberForService || undefined, false);
+            nuevoMontoStr = gsFormat(precioCalculado.toString());
+          } catch (error) {
+            // Mantener el precio actual si hay error
+            console.warn('Error al recalcular precio:', error);
+          }
+        }
+      }
+      
+      return {
+        ...it,
+        tipoServicio: nuevoTipo,
+        vencimiento: nuevoVencimiento,
+        dias: nuevasDias,
+        montoStr: nuevoMontoStr
+      };
+    }));
+  }
+
+  function onChangeDias(idx: number, dias: number) {
+    const diasValidos = Math.max(1, dias);
+    setPayItems(prev => prev.map((it, i) => {
+      if (i !== idx || it.tipoServicio !== 'DIARIO') return it;
+      
+      const nuevoVencimiento = addDays(paymentForm.fecha, diasValidos);
+      
+      return {
+        ...it,
+        dias: diasValidos,
+        vencimiento: nuevoVencimiento
+      };
+    }));
+  }
+
+  function onChangeVencimiento(idx: number, vencimiento: string) {
+    setPayItems(prev => prev.map((it, i) => {
+      if (i !== idx) return it;
+      
+      let nuevasDias = it.dias;
+      
+      // Si es tipo DIARIO, recalcular días
+      if (it.tipoServicio === 'DIARIO' && vencimiento) {
+        const fechaPago = new Date(paymentForm.fecha);
+        const fechaVencimiento = new Date(vencimiento);
+        const diffTime = fechaVencimiento.getTime() - fechaPago.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        nuevasDias = Math.max(1, diffDays);
+      }
+      
+      return {
+        ...it,
+        vencimiento,
+        dias: nuevasDias
+      };
+    }));
+  }
+
+  // Sumas
+  const sumConcepts = useMemo(() =>
+    payItems.reduce((acc, it) => acc + gsParse(it.montoStr), 0),
+  [payItems]);
+
+  const allocatedExisting = useMemo(
+    () => Object.values(allocations).reduce((acc, v) => acc + nSafe(v), 0),
+    [allocations]
+  );
+
+  const extraBudget = useMemo(() => gsParse(extraBudgetStr), [extraBudgetStr]);
+  const remainingBudget = Math.max(0, extraBudget - allocatedExisting);
+
+  const totalToPay = useMemo(() => sumConcepts + allocatedExisting, [sumConcepts, allocatedExisting]);
+
+  function fillFull(debit: Movement) {
+    const pend = Math.max(0, xround(debit.monto) - xround(debit.paidAmount || 0));
+    const can = Math.min(pend, remainingBudget);
+    setAllocations(prev => ({ ...prev, [debit.id]: can ? String(can) : '' }));
+  }
+
+  function autoDistribute() {
+    let left = extraBudget;
+    const next: Record<string, string> = {};
+    for (const d of pendingDebits) {
+      const pend = Math.max(0, xround(d.monto) - xround(d.paidAmount || 0));
+      const take = Math.min(pend, left);
+      if (take > 0) {
+        next[d.id] = String(take);
+        left -= take;
+        if (left <= 0) break;
+      }
+    }
+    setAllocations(next);
+  }
+
+  function setAllocation(debitId: string, value: string, maxPend: number) {
+    const parsedValue = gsParse(value); // Usar gsParse para manejar formato con separadores
+    const v = Math.max(0, Math.min(parsedValue, maxPend));
+    const others = Object.entries(allocations).reduce((acc,[id,val]) => acc + (id===debitId?0:nSafe(val)), 0);
+    const room = Math.max(0, extraBudget - others);
+    const final = Math.min(v, room);
+    setAllocations(prev => ({ ...prev, [debitId]: final ? String(final) : '' }));
+  }
+
+  // Obtener servicios disponibles para un ítem específico (excluyendo los ya seleccionados)
+  function getAvailableServices(currentIdx: number) {
+    const selectedServiceIds = payItems
+      .map((item, idx) => idx !== currentIdx ? item.servicioId : '') // Excluir el ítem actual
+      .filter(id => id !== ''); // Remover vacíos
+    
+    return services.filter(service => !selectedServiceIds.includes(service.id));
+  }
+  async function handleSubmitCharge() {
+    if (!selectedMemberForService) return;
+
+    if (!paymentForm.metodoPago) {
+      alert('Elegí un método de pago.');
+      return;
+    }
+    if (sumConcepts <= 0 && allocatedExisting <= 0) {
+      alert('Agregá al menos un concepto o asigná pagos a deudas.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const newDebitAllocations: Array<{ debitId: string; amount: number }> = [];
+
+      for (const it of payItems) {
+        const amount = gsParse(it.montoStr);
+        if (!it.servicioId || !amount) continue;
+
+        const srv = services.find(s => s.id === it.servicioId);
+        const tipo = (srv?.tipo || 'MENSUAL') as 'MENSUAL'|'ANUAL'|'UNICO';
+        const concepto = srv?.nombre || it.concepto || 'Servicio';
+        const days = periodDays(tipo);
+
+        let nextDue = it.nextDue;
+        let subId = it.subId;
+
+        if (selectedMemberForService && tipo !== 'UNICO') {
+          if (!subId) {
+            const subRes = await AuthClient.authenticatedFetch(
+              `/api/members/${encodeURIComponent(selectedMemberForService.id)}/subscriptions`,
+              {
+                method: 'POST',
+                body: JSON.stringify({
+                  serviceId: String(it.servicioId),
+                  periodicity: tipo,
+                  price: amount,
+                  autoDebit: false,
+                  notes: `Creado desde Cobrar el ${paymentForm.fecha}`,
+                  validUntil: nextDue || addDays(paymentForm.fecha, days),
+                }),
+              }
+            );
+            const subJson = await subRes.json().catch(()=>({}));
+            if (!subRes.ok) throw new Error(subJson?.msg || 'No se pudo crear la suscripción');
+            subId = String(subJson.id || subJson?.subscription?.id || '');
+          } else {
+            if (nextDue) {
+              await AuthClient.authenticatedFetch(
+                `/api/members/${encodeURIComponent(selectedMemberForService.id)}/subscriptions/${encodeURIComponent(subId)}`,
+                {
+                  method: 'PATCH',
+                  body: JSON.stringify({
+                    validUntil: nextDue,
+                    price: amount,
+                  }),
+                }
+              ).catch(()=>{});
+            }
+          }
+        }
+
+        const debitRes = await AuthClient.authenticatedFetch('/api/movements', {
+          method: 'POST',
+          body: JSON.stringify({
+            memberId: selectedMemberForService.id,
+            fecha: paymentForm.fecha,
+            concepto: `${concepto}${tipo !== 'UNICO' ? ` (${tipo})` : ''}`,
+            tipo: 'DEBIT',
+            monto: Number(amount),
+            origen: 'SERVICIO',
+            refId: it.servicioId,
+            observaciones: `Cobro contado - ${paymentForm.metodoPago}`,
+            vencimiento: tipo === 'UNICO' ? paymentForm.fecha : (nextDue || addDays(paymentForm.fecha, days)),
+          }),
+        });
+        const debitJson = await debitRes.json().catch(()=>({}));
+        if (!debitRes.ok) throw new Error(debitJson?.msg || 'No se pudo crear el débito del servicio');
+        const newDebitId = String(debitJson.id ?? debitJson?.movement?.id ?? '');
+        newDebitAllocations.push({ debitId: newDebitId, amount: amount });
+      }
+
+      const existingAllocations = Object.entries(allocations)
+        .map(([debitId, val]) => ({ debitId, amount: nSafe(val) }))
+        .filter(x => x.amount > 0);
+
+      const payAmount = newDebitAllocations.reduce((a,b)=>a+b.amount,0) + existingAllocations.reduce((a,b)=>a+b.amount,0);
+
+      const payRes = await AuthClient.authenticatedFetch('/api/payments', {
+        method: 'POST',
+        body: JSON.stringify({
+          memberId: selectedMemberForService.id,
+          fecha: paymentForm.fecha,
+          monto: payAmount,
+          concepto: 'Pago contado de servicios',
+          formaPago: paymentForm.metodoPago,
+          cobradorId: paymentForm.cobradorId || undefined,
+          numeroRecibo: paymentForm.numeroRecibo || undefined,
+          observaciones: paymentForm.observaciones || '',
+          allocations: [...newDebitAllocations, ...existingAllocations],
+        }),
+      });
+      const payJson = await payRes.json().catch(()=>({}));
+      if (!payRes.ok) throw new Error(payJson?.msg || 'No se pudo registrar el pago');
+
+      await loadMembersAndLedgers();
+      handleCloseCobranzaModal();
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.message || 'Error al procesar la operación');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // ===== Guardar (crear sólo servicio) — Tab Servicio =====
+  async function handleSaveServiceOnly() {
+    if (!selectedMemberForService) return;
+    const selected = services.find((s) => s.id === serviceForm.servicioId);
+    const conceptoBase = selected?.nombre || serviceForm.concepto.trim();
+    if (!serviceForm.fecha || !conceptoBase || !serviceForm.monto) {
+      alert('Completa Fecha, Servicio/Concepto y Monto.');
+      return;
+    }
+    if (!serviceForm.vencimiento) {
+      alert('Seleccioná una fecha de vencimiento.');
+      return;
+    }
+    const willSubscribe = serviceForm.makeSubscription && serviceForm.tipoServicio !== 'UNICO';
+    const concepto = `${conceptoBase} (${serviceForm.tipoServicio})`;
+
+    setSaving(true);
+    try {
+      const res = await AuthClient.authenticatedFetch('/api/movements', {
+        method: 'POST',
+        body: JSON.stringify({
+          memberId: selectedMemberForService.id,
+          fecha: serviceForm.fecha,
+          concepto,
+          tipo: 'DEBIT',
+          monto: Number(serviceForm.monto),
+          origen: 'SERVICIO',
+          refId: selected?.id || undefined,
+          observaciones: serviceForm.observaciones || '',
+          vencimiento: serviceForm.vencimiento,
+        }),
+      });
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok) throw new Error(data?.msg || 'No se pudo registrar el servicio');
+
+      if (willSubscribe) {
+        const svcId = selected?.id || `custom:${conceptoBase}`;
+        await AuthClient.authenticatedFetch(
+          `/api/members/${encodeURIComponent(selectedMemberForService.id)}/subscriptions`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              serviceId: String(svcId),
+              periodicity: serviceForm.tipoServicio,
+              price: Number(serviceForm.monto),
+              autoDebit: serviceForm.autoDebit !== false,
+              notes: serviceForm.observaciones || '',
+              validUntil: serviceForm.vencimiento,
+            }),
+          }
+        );
+      }
+
+      await loadMembersAndLedgers();
+      handleCloseCobranzaModal();
+    } catch (e:any) {
+      console.error(e);
+      alert(e?.message || 'Error registrando el servicio');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // ===== Borrar socio =====
+  async function handleDelete(memberId: string) {
+    const member = members.find((m) => m.id === memberId);
+    if (!member) return;
+    const confirmDelete = window.confirm(
+      `¿Eliminar al socio ${member.nombres} ${member.apellidos}? Esta acción no se puede deshacer.`
+    );
+    if (!confirmDelete) return;
+    try {
+      const response = await AuthClient.authenticatedFetch(`/api/members/${memberId}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (response.ok) {
+        await loadMembersAndLedgers();
+        setTimeout(() => setDeleteMsg(''), 3000);
+      } else {
+        setDeleteMsg(data.msg || 'Error al eliminar socio');
+        setTimeout(() => setDeleteMsg(''), 5000);
+      }
+    } catch (error) {
+      setDeleteMsg('Error de conexión al eliminar socio');
+      setTimeout(() => setDeleteMsg(''), 5000);
+    }
+  }
+
+  // ===== Crear no-socio y abrir modal de cobro =====
+  async function handleCreateNoSocio() {
+    try {
+      // Validar campos requeridos
+      if (!noSocioForm.nombres.trim() || !noSocioForm.apellidos.trim()) {
+        alert('Nombres y apellidos son obligatorios');
+        return;
+      }
+
+      // Validar CI duplicado si se proporciona
+      if (noSocioForm.ci.trim()) {
+        const existingMember = members.find(member => 
+          member.ci && member.ci.trim().toLowerCase() === noSocioForm.ci.trim().toLowerCase()
+        );
+        
+        if (existingMember) {
+          const memberType = existingMember.subcategoria === 'NO SOCIO' ? 'no-socio' : 'socio';
+          setCiValidationError(`Ya existe un ${memberType} registrado con la CI ${noSocioForm.ci}: ${existingMember.nombres} ${existingMember.apellidos} (Código: ${existingMember.codigo})`);
+          return;
+        }
+      }
+
+      // Limpiar error de validación
+      setCiValidationError('');
+
+      // Generar código único para no-socio
+      const timestamp = Date.now();
+      const codigo = `NS${timestamp.toString().slice(-6)}`;
+
+      // Crear el miembro no-socio
+      const newMember = {
+        codigo,
+        nombres: noSocioForm.nombres.trim(),
+        apellidos: noSocioForm.apellidos.trim(),
+        ci: noSocioForm.ci.trim() || '',
+        telefono: noSocioForm.telefono.trim() || '',
+        email: noSocioForm.email.trim() || '',
+        categoria: 'CLIENTE',
+        subcategoria: 'NO SOCIO',
+        estado: 'ACTIVO',
+        alta: new Date().toISOString().slice(0, 10),
+        ruc: ''
+      };
+
+      const response = await AuthClient.authenticatedFetch('/api/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMember)
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // Actualizar lista de miembros
+        await loadMembersAndLedgers();
+        
+        // Buscar el miembro recién creado
+        const createdMember = data.member;
+        
+        // Limpiar form y cerrar modal
+        setNoSocioForm({
+          nombres: '',
+          apellidos: '',
+          ci: '',
+          telefono: '',
+          email: ''
+        });
+        setCiValidationError('');
+        closeNoSocioModal();
+        
+        // Abrir modal de cobro con el nuevo no-socio
+        setSelectedMemberForService(createdMember);
+        setActiveTab('unified');
+        setShowChargeModal(true);
+        
+      } else {
+        alert(data.msg || 'Error al crear no-socio');
+      }
+    } catch (error) {
+      console.error('Error creating no-socio:', error);
+      alert('Error de conexión al crear no-socio');
+    }
+  }
+
+  // ===== Convertir no-socio a socio =====
+  async function handleConvertToSocio(memberId: string) {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
+    const confirmConvert = window.confirm(
+      `¿Convertir a ${member.nombres} ${member.apellidos} de no-socio a socio? Se le asignará un nuevo número de socio.`
+    );
+    if (!confirmConvert) return;
+
+    try {
+      const response = await AuthClient.authenticatedFetch(`/api/members/${memberId}/convert-to-socio`, {
+        method: 'POST'
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(`✅ ${data.message}`);
+        await loadMembersAndLedgers(); // Recargar la lista
+      } else {
+        alert(data.error || 'Error al convertir no-socio a socio');
+      }
+    } catch (error) {
+      console.error('Error converting no-socio to socio:', error);
+      alert('Error de conexión al convertir no-socio a socio');
+    }
+  }
+
+  // ===== Estadísticas y filtros =====
+  const stats = useMemo(() => {
+    let alDia = 0, atrasados = 0;
+    members.forEach((m) => {
+      const calc = memberDebtMap[m.id]?.estadoCalc ?? m.estado;
+      if (calc === 'ATRASADO') atrasados++; else if (calc === 'AL_DIA') alDia++;
+    });
+    return { total: members.length, alDia, atrasados };
+  }, [members, memberDebtMap]);
+
+  const filteredMembers = useMemo(() => {
+    const text = searchTerm.toLowerCase();
+    return members.filter((member) => {
+      const matchesSearch =
+        member.nombres.toLowerCase().includes(text) ||
+        member.apellidos.toLowerCase().includes(text) ||
+        member.codigo.toLowerCase().includes(text) ||
+        member.ci.includes(searchTerm) ||
+        (member.email && member.email.toLowerCase().includes(text));
+
+      const estadoCalc = memberDebtMap[member.id]?.estadoCalc ?? (member.estado as any);
+      const matchesCategoria = !filterCategoria || member.categoria === filterCategoria;
+      const matchesEstado = !filterEstado || estadoCalc === filterEstado;
+      const matchesSubcategoria = !filterSubcategoria || member.subcategoria === filterSubcategoria;
+
+      return matchesSearch && matchesCategoria && matchesEstado && matchesSubcategoria;
+    });
+  }, [members, memberDebtMap, searchTerm, filterCategoria, filterEstado, filterSubcategoria]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMembers.length / pageSize));
+  const pageSafe = Math.min(page, totalPages);
+  const start = (pageSafe - 1) * pageSize;
+  const end = start + pageSize;
+  const pageMembers = filteredMembers.slice(start, end);
+
+  const exportToExcel = async () => {
+    try {
+      const response = await AuthClient.authenticatedFetch('/api/members/export?format=excel');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `socios-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+    }
+  };
+
+  const EstadoBadge = ({ estado }: { estado: string }) => {
+    const getVariant = () => {
+      switch (estado) {
+        case 'AL_DIA': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        case 'ATRASADO': return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'SUSPENDIDO': return 'bg-rose-50 text-rose-700 border-rose-200';
+        default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      }
+    };
+    const label =
+      estado === 'AL_DIA' ? 'Al Día' :
+      estado === 'ATRASADO' ? 'Atrasado' :
+      estado === 'SUSPENDIDO' ? 'Suspendido' : estado;
+    return (
+      <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getVariant()}`}>
+        {label}
+      </span>
+    );
+  };
+
+  function openFloatingMenu(memberId: string, e: React.MouseEvent<HTMLButtonElement>) {
+    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+    setMenuPos({ x: rect.right - 192, y: rect.bottom + 8 });
+    actionsBtnRef.current = e.currentTarget;
+    setOpenMenuMemberId(memberId);
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Validación inteligente del formulario unificado
+  const isUnifiedFormValid = () => {
+    // Validaciones básicas comunes
+    if (!unifiedForm.fecha) return false;
+
+    // Determinar conceptos de la sección activa
+    const usingContado = unifiedForm.condicion === 'CONTADO';
+    const conceptos = usingContado ? (unifiedForm.conceptosContado || []) : (unifiedForm.conceptosCredito || []);
+
+    // Debe existir al menos un concepto válido
+    if (!conceptos || conceptos.length === 0) return false;
+
+    // Validar cada concepto: servicio y monto numérico > 0
+    if (conceptos.length > 0) {
+      for (const c of conceptos) {
+        if (!c.servicioId) return false;
+        const m = parseFloat(getNumericValueSafe(c.monto));
+        if (isNaN(m) || m <= 0) return false;
+        if (c.tipoServicio === 'DIARIO' && (!c.dias || c.dias <= 0)) return false;
+      }
+      // Validar duplicados
+      if (hasDuplicateService(conceptos)) return false;
+    }
+
+    // Validaciones específicas por condición
+    if (unifiedForm.condicion === 'CONTADO') {
+      // CONTADO requiere método de pago
+      if (!unifiedForm.metodoPago) return false;
+    } else if (unifiedForm.condicion === 'CREDITO') {
+      // CREDITO con pago parcial requiere validaciones adicionales
+      if (unifiedForm.permitirPagosParc) {
+        if (!unifiedForm.pagoAplicado) return false; // Si permite pago parcial, debe tener monto
+        const pagoAplicado = parseFloat(getNumericValue(unifiedForm.pagoAplicado));
+        if (isNaN(pagoAplicado) || pagoAplicado <= 0) return false;
+        // calcular total actual
+        const total = calculateTotal(unifiedForm.conceptosCredito) || parseFloat(getNumericValue(unifiedForm.monto || '0'));
+        if (pagoAplicado > total) return false; // Pago parcial no puede superar el monto total
+        if (!unifiedForm.metodoPago) return false; // Pago parcial requiere método de pago
+      }
+    }
+
+    return true;
+  };
+
+  // Función unificada para manejar pagos al contado
+  const handleUnifiedContadoPayment = async () => {
+    setShowFormValidation(true);
+    if (!selectedMemberForService || !isUnifiedFormValid()) return;
+
+    setSaving(true);
+    try {
+      // Multi-concept flow: crear un débito por cada concepto y luego un pago que asigne los montos
+      const conceptos = unifiedForm.conceptosContado || [];
+
+      const createdDebits: { id: string; amount: number; conceptoName: string }[] = [];
+
+      for (const c of conceptos) {
+        const montoNum = parseFloat(getNumericValueSafe(c.monto));
+        const tipo = c.tipoServicio;
+        const days = tipo === 'ANUAL' ? 365 : tipo === 'MENSUAL' ? 30 : (c.dias || 1);
+
+  // Crear suscripción por concepto si aplica (por-concepto o flag global)
+  if ((c.crearSuscripcion || unifiedForm.crearSuscripcion) && tipo !== 'UNICO') {
+          const subRes = await AuthClient.authenticatedFetch(
+            `/api/members/${encodeURIComponent(selectedMemberForService.id)}/subscriptions`,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                serviceId: c.servicioId,
+                periodicity: tipo,
+                price: montoNum,
+                autoDebit: false,
+                notes: `Creado desde formulario unificado el ${unifiedForm.fecha}`,
+                validUntil: c.vencimiento || addDays(unifiedForm.fecha, days),
+              }),
+            }
+          );
+          const subJson = await subRes.json().catch(() => ({}));
+          if (!subRes.ok) throw new Error(subJson?.msg || 'No se pudo crear la suscripción');
+        }
+
+        // Crear débito por concepto
+        const debitRes = await AuthClient.authenticatedFetch('/api/movements', {
+          method: 'POST',
+          body: JSON.stringify({
+            memberId: selectedMemberForService.id,
+            fecha: unifiedForm.fecha,
+            concepto: `${c.concepto || 'Servicio'}${tipo !== 'UNICO' ? ` (${tipo})` : ''}`,
+            tipo: 'DEBIT',
+            monto: Number(montoNum),
+            origen: 'SERVICIO',
+            refId: c.servicioId,
+            observaciones: c.observaciones || unifiedForm.observaciones || `Pago contado - ${unifiedForm.metodoPago}`,
+            vencimiento: tipo === 'UNICO' ? unifiedForm.fecha : (c.vencimiento || addDays(unifiedForm.fecha, days)),
+          }),
+        });
+        const debitJson = await debitRes.json().catch(() => ({}));
+        if (!debitRes.ok) throw new Error(debitJson?.msg || 'No se pudo crear el débito del servicio');
+        const newDebitId = String(debitJson.id ?? debitJson?.movement?.id ?? '');
+        createdDebits.push({ id: newDebitId, amount: montoNum, conceptoName: c.concepto || 'Servicio' });
+      }
+
+      // Crear un pago que asigne a cada débito creado
+      const totalAmount = createdDebits.reduce((s, d) => s + d.amount, 0);
+      const allocations = createdDebits.map(d => ({ debitId: d.id, amount: d.amount }));
+
+      const payRes = await AuthClient.authenticatedFetch('/api/payments', {
+        method: 'POST',
+        body: JSON.stringify({
+          memberId: selectedMemberForService.id,
+          fecha: unifiedForm.fecha,
+          monto: totalAmount,
+          concepto: `Pago contado: ${createdDebits.map(d => d.conceptoName).join(', ')}`,
+          formaPago: unifiedForm.metodoPago,
+          cobradorId: unifiedForm.cobradorId || undefined,
+          numeroRecibo: unifiedForm.numeroRecibo || undefined,
+          observaciones: unifiedForm.observaciones || '',
+          allocations,
+        }),
+      });
+      const payJson = await payRes.json().catch(() => ({}));
+      if (!payRes.ok) throw new Error(payJson?.msg || 'No se pudo crear el pago');
+      const paymentId = String(payJson.id ?? payJson?.payment?.id ?? '');
+
+      // Asignación a deudas pendientes si hay presupuesto
+      if (unifiedForm.presupuestoDeudas && parseFloat(getNumericValue(unifiedForm.presupuestoDeudas)) > 0) {
+        const presupuesto = parseFloat(getNumericValue(unifiedForm.presupuestoDeudas));
+        
+        // Crear pago adicional para deudas
+        const debtPayRes = await AuthClient.authenticatedFetch('/api/payments', {
+          method: 'POST',
+          body: JSON.stringify({
+            memberId: selectedMemberForService.id,
+            fecha: unifiedForm.fecha,
+            monto: presupuesto,
+            concepto: `Pago de deudas pendientes - ${createdDebits && createdDebits.length ? createdDebits.map(d => d.conceptoName).join(', ') : (unifiedForm.concepto || '')}`,
+            formaPago: unifiedForm.metodoPago,
+            cobradorId: unifiedForm.cobradorId || '',
+            numeroRecibo: unifiedForm.numeroRecibo || '',
+            observaciones: `Asignación automática a deudas pendientes. ${unifiedForm.observaciones || ''}`.trim(),
+            // El sistema asignará automáticamente a los débitos más antiguos
+          }),
+        });
+        const debtPayJson = await debtPayRes.json().catch(() => ({}));
+        if (!debtPayRes.ok) {
+          console.warn('No se pudo procesar el pago de deudas:', debtPayJson?.msg);
+          // No fallar completamente, el pago principal ya se registró
+        }
+      }
+
+      const debtAssignmentMsg = unifiedForm.presupuestoDeudas && parseFloat(getNumericValue(unifiedForm.presupuestoDeudas)) > 0
+        ? ` y se asignaron Gs. ${parseInt(getNumericValue(unifiedForm.presupuestoDeudas)).toLocaleString('es-PY')} a deudas pendientes`
+        : '';
+      
+      alert(`✅ Pago al contado registrado exitosamente${debtAssignmentMsg}`);
+      handleCloseCobranzaModal();
+      await loadMembersAndLedgers();
+    } catch (error) {
+      console.error('Error al procesar pago contado:', error);
+      alert(`❌ Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Función unificada para manejar servicios a crédito
+  const handleUnifiedCreditoService = async () => {
+    setShowFormValidation(true);
+    if (!selectedMemberForService || !isUnifiedFormValid()) return;
+
+    setSaving(true);
+    try {
+      // Multi-concept flow para crédito: crear débitos por cada concepto
+      const conceptos = unifiedForm.conceptosCredito || [];
+
+      const createdDebits: { id: string; amount: number; conceptoName: string }[] = [];
+
+      for (const c of conceptos) {
+        const montoNum = parseFloat(getNumericValueSafe(c.monto));
+        const tipo = c.tipoServicio;
+        const days = tipo === 'ANUAL' ? 365 : tipo === 'MENSUAL' ? 30 : (c.dias || 1);
+
+  // Crear suscripción por concepto si aplica (por-concepto o flag global)
+  if ((c.crearSuscripcion || unifiedForm.crearSuscripcion) && tipo !== 'UNICO') {
+          const subRes = await AuthClient.authenticatedFetch(
+            `/api/members/${encodeURIComponent(selectedMemberForService.id)}/subscriptions`,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                serviceId: c.servicioId,
+                periodicity: tipo,
+                price: montoNum,
+                autoDebit: false,
+                notes: `Creado desde formulario unificado el ${unifiedForm.fecha}`,
+                validUntil: c.vencimiento || addDays(unifiedForm.fecha, days),
+              }),
+            }
+          );
+          const subJson = await subRes.json().catch(() => ({}));
+          if (!subRes.ok) throw new Error(subJson?.msg || 'No se pudo crear la suscripción');
+        }
+
+        const debitRes = await AuthClient.authenticatedFetch('/api/movements', {
+          method: 'POST',
+          body: JSON.stringify({
+            memberId: selectedMemberForService.id,
+            fecha: unifiedForm.fecha,
+            concepto: `${c.concepto || 'Servicio'}${tipo !== 'UNICO' ? ` (${tipo})` : ''}`,
+            tipo: 'DEBIT',
+            monto: Number(montoNum),
+            origen: 'SERVICIO',
+            refId: c.servicioId,
+            observaciones: c.observaciones || unifiedForm.observaciones || 'Servicio a crédito',
+            vencimiento: tipo === 'UNICO' ? unifiedForm.fecha : (c.vencimiento || addDays(unifiedForm.fecha, days)),
+          }),
+        });
+        const debitJson = await debitRes.json().catch(() => ({}));
+        if (!debitRes.ok) throw new Error(debitJson?.msg || 'No se pudo crear el débito del servicio');
+        const newDebitId = String(debitJson.id ?? debitJson?.movement?.id ?? '');
+        createdDebits.push({ id: newDebitId, amount: montoNum, conceptoName: c.concepto || 'Servicio' });
+      }
+
+      // Si hay pago parcial, distribuir el pago entre los débitos creados (en orden) hasta agotar
+      if (unifiedForm.permitirPagosParc && unifiedForm.pagoAplicado && unifiedForm.metodoPago) {
+        let left = parseFloat(getNumericValue(unifiedForm.pagoAplicado));
+        const allocations: { debitId: string; amount: number }[] = [];
+        for (const d of createdDebits) {
+          if (left <= 0) break;
+          const take = Math.min(left, d.amount);
+          allocations.push({ debitId: d.id, amount: take });
+          left -= take;
+        }
+
+        if (allocations.length > 0) {
+          const pagoTotal = allocations.reduce((s, a) => s + a.amount, 0);
+          const payRes = await AuthClient.authenticatedFetch('/api/payments', {
+            method: 'POST',
+            body: JSON.stringify({
+              memberId: selectedMemberForService.id,
+              fecha: unifiedForm.fecha,
+              monto: pagoTotal,
+              concepto: `Pago parcial: ${createdDebits.map(d => d.conceptoName).join(', ')}`,
+              formaPago: unifiedForm.metodoPago,
+              cobradorId: unifiedForm.cobradorId || '',
+              numeroRecibo: unifiedForm.referencia || '',
+              observaciones: unifiedForm.observaciones || '',
+              allocations,
+            }),
+          });
+          const payJson = await payRes.json().catch(() => ({}));
+          if (!payRes.ok) throw new Error(payJson?.msg || 'No se pudo crear el pago parcial');
+        }
+      }
+
+      // Asignación a deudas pendientes si hay presupuesto
+      if (unifiedForm.presupuestoDeudas && parseFloat(getNumericValue(unifiedForm.presupuestoDeudas)) > 0) {
+        const presupuesto = parseFloat(getNumericValue(unifiedForm.presupuestoDeudas));
+        
+        // Crear pago adicional para deudas (independiente del pago parcial del servicio)
+        const debtPayRes = await AuthClient.authenticatedFetch('/api/payments', {
+          method: 'POST',
+          body: JSON.stringify({
+            memberId: selectedMemberForService.id,
+            fecha: unifiedForm.fecha,
+            monto: presupuesto,
+            concepto: `Pago de deudas pendientes - ${createdDebits && createdDebits.length ? createdDebits.map(d => d.conceptoName).join(', ') : (unifiedForm.concepto || '')}`,
+            formaPago: unifiedForm.permitirPagosParc ? unifiedForm.metodoPago : 'EFECTIVO', // Si hay pago parcial, usar mismo método
+            cobradorId: '',
+            numeroRecibo: '',
+            observaciones: `Asignación automática a deudas pendientes. ${unifiedForm.observaciones || ''}`.trim(),
+            // El sistema asignará automáticamente a los débitos más antiguos
+          }),
+        });
+        const debtPayJson = await debtPayRes.json().catch(() => ({}));
+        if (!debtPayRes.ok) {
+          console.warn('No se pudo procesar el pago de deudas:', debtPayJson?.msg);
+          // No fallar completamente, el servicio principal ya se registró
+        }
+      }
+
+      const baseMessage = unifiedForm.permitirPagosParc && unifiedForm.pagoAplicado 
+        ? '✅ Servicio a crédito con pago parcial registrado exitosamente'
+        : '✅ Servicio a crédito registrado exitosamente';
+      
+      const debtAssignmentMsg = unifiedForm.presupuestoDeudas && parseFloat(getNumericValue(unifiedForm.presupuestoDeudas)) > 0
+        ? ` y se asignaron Gs. ${parseInt(getNumericValue(unifiedForm.presupuestoDeudas)).toLocaleString('es-PY')} a deudas pendientes`
+        : '';
+      
+      alert(`${baseMessage}${debtAssignmentMsg}`);
+      handleCloseCobranzaModal();
+      await loadMembersAndLedgers();
+    } catch (error) {
+      console.error('Error al procesar servicio a crédito:', error);
+      alert(`❌ Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Función para formatear números con separadores de miles
+  const formatNumberWithSeparator = (value: string) => {
+    // Remover caracteres no numéricos excepto punto decimal
+    const cleaned = value.replace(/[^\d]/g, '');
+    if (!cleaned) return '';
+    
+    // Convertir a número y formatear con separadores
+    const number = parseInt(cleaned);
+    return number.toLocaleString('es-PY').replace(/,/g, '.');
+  };
+
+  // Función para obtener el valor numérico sin separadores
+  const getNumericValue = (formattedValue: string) => {
+    return formattedValue.replace(/\./g, '');
+  };
+
+  // Función para actualizar vencimiento automático
+  const updateVencimientoAutomatico = (fecha: string, tipoServicio: string) => {
+    if (!fecha) return '';
+    
+    const days = tipoServicio === 'ANUAL' ? 365 : 
+                 tipoServicio === 'MENSUAL' ? 30 : 
+                 tipoServicio === 'DIARIO' ? (unifiedForm.dias || 1) : 30;
+    
+    return tipoServicio === 'UNICO' ? fecha : addDays(fecha, days);
+  };
+
+  // Funciones para manejo de débitos seleccionados
+  const handleDebitSelection = (debitId: string, isSelected: boolean) => {
+    let newSelectedDebits: string[];
+    if (isSelected) {
+      newSelectedDebits = [...selectedDebits, debitId];
+      
+      // Auto-inicializar fecha de pago cuando se selecciona el primer débito
+      if (selectedDebits.length === 0 && !debtPaymentForm.fecha) {
+        const today = new Date().toISOString().split('T')[0];
+        setDebtPaymentForm(prev => ({
+          ...prev,
+          fecha: today
+        }));
+      }
+    } else {
+      newSelectedDebits = selectedDebits.filter(id => id !== debitId);
+    }
+    
+    setSelectedDebits(newSelectedDebits);
+    
+    // Actualizar monto a pagar automáticamente
+    const total = newSelectedDebits.reduce((sum, id) => {
+      const debit = pendingDebits.find(d => d.id === id);
+      if (debit) {
+        const saldoPendiente = (debit.monto || 0) - (debit.paidAmount || 0);
+        return sum + saldoPendiente;
+      }
+      return sum;
+    }, 0);
+    
+    const formattedTotal = total > 0 ? formatNumberWithSeparator(total.toString()) : '';
+    
+    // Actualizar tanto el formulario unificado como el de deudas
+    setUnifiedForm(prev => ({ ...prev, presupuestoDeudas: formattedTotal }));
+    setDebtPaymentForm(prev => ({ ...prev, montoAPagar: formattedTotal }));
+  };
+
+  // Función para auto-asignar monto por antigüedad
+  const autoAssignByAge = (availableAmount: number) => {
+    if (pendingDebits.length === 0) return [];
+    
+    // Ordenar débitos por antigüedad (fecha más antigua primero, luego vencimiento)
+    const sortedDebits = [...pendingDebits].sort((a, b) => {
+      const dateA = new Date(a.fecha).getTime();
+      const dateB = new Date(b.fecha).getTime();
+      if (dateA !== dateB) return dateA - dateB;
+      
+      const vencA = a.vencimiento ? new Date(a.vencimiento).getTime() : Infinity;
+      const vencB = b.vencimiento ? new Date(b.vencimiento).getTime() : Infinity;
+      return vencA - vencB;
+    });
+    
+    let remainingAmount = availableAmount;
+    const selectedIds: string[] = [];
+    
+    for (const debit of sortedDebits) {
+      if (remainingAmount <= 0) break;
+      
+      const saldoPendiente = (debit.monto || 0) - (debit.paidAmount || 0);
+      if (saldoPendiente <= remainingAmount) {
+        selectedIds.push(debit.id);
+        remainingAmount -= saldoPendiente;
+      }
+    }
+    
+    return selectedIds;
+  };
+
+  // Función para manejar cambio manual del monto a pagar
+  const handleMontoAPagarChange = (value: string) => {
+    const formatted = formatNumberWithSeparator(value);
+    setDebtPaymentForm(prev => ({ ...prev, montoAPagar: formatted }));
+    
+    // Auto-asignar débitos por antigüedad según el monto ingresado
+    const numericAmount = parseFloat(getNumericValue(formatted)) || 0;
+    if (numericAmount > 0) {
+      const autoSelected = autoAssignByAge(numericAmount);
+      setSelectedDebits(autoSelected);
+    } else {
+      setSelectedDebits([]);
+    }
+  };
+
+  const calculateSelectedDebitsTotal = () => {
+    return selectedDebits.reduce((total, debitId) => {
+      const debit = pendingDebits.find(d => d.id === debitId);
+      if (debit) {
+        const saldoPendiente = (debit.monto || 0) - (debit.paidAmount || 0);
+        return total + saldoPendiente;
+      }
+      return total;
+    }, 0);
+  };
+
+  // Actualizar automáticamente el presupuesto según débitos seleccionados
+  const updateBudgetFromSelection = () => {
+    const total = calculateSelectedDebitsTotal();
+    const formattedTotal = formatNumberWithSeparator(total.toString());
+    setUnifiedForm(prev => ({ ...prev, presupuestoDeudas: formattedTotal }));
+  };
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Gestión de Socios</h1>
+            <p className="text-sm text-gray-600 mt-1">Administra la información de los socios del club</p>
+          </div>
+
+          {/* Estadísticas */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm min-w-[120px] text-center">
+              <div className="text-xl font-semibold text-gray-900">{stats.total}</div>
+              <div className="text-xs text-gray-600 mt-1">Total Socios</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm min-w-[120px] text-center">
+              <div className="text-xl font-semibold text-emerald-700">{stats.alDia}</div>
+              <div className="text-xs text-gray-600 mt-1">Al Día</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm min-w-[120px] text-center">
+              <div className="text-xl font-semibold text-amber-700">{stats.atrasados}</div>
+              <div className="text-xs text-gray-600 mt-1">Atrasados</div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={exportToExcel}
+                className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-sm"
+              >
+                <Download className="w-4 h-4" />
+                Exportar
+              </button>
+              <button
+                onClick={() => setShowNoSocioModal(true)}
+                className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 flex items-center gap-2 shadow-sm"
+              >
+                <CreditCard className="w-4 h-4" />
+                Cobrar (No socio)
+              </button>
+              <Link
+                href="/admin/socios/nuevo"
+                className="bg-custom-blue text-white px-4 py-2 rounded-lg hover:bg-custom-blue flex items-center gap-2 shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                Nuevo Socio
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Filtros y búsqueda */}
+        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <h3 className="text-base font-medium text-gray-900">Filtros de Búsqueda</h3>
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="flex items-center gap-2 text-gray-700 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-50"
+            >
+              <Filter className="w-4 h-4" />
+              {showAdvancedFilters ? 'Ocultar Filtros' : 'Filtros Avanzados'}
+              {showAdvancedFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Buscar</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Nombre, código, CI o email..."
+                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700"
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Categoría</label>
+              <select
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700"
+                value={filterCategoria}
+                onChange={(e) => { setFilterCategoria(e.target.value); setPage(1); }}
+              >
+                <option value="">Todas</option>
+                <option value="Individual">Individual</option>
+                <option value="Familiar">Familiar</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Estado</label>
+              <select
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700"
+                value={filterEstado}
+                onChange={(e) => { setFilterEstado(e.target.value); setPage(1); }}
+              >
+                <option value="">Todos</option>
+                <option value="AL_DIA">Al Día</option>
+                <option value="ATRASADO">Atrasado</option>
+                <option value="SUSPENDIDO">Suspendido</option>
+              </select>
+            </div>
+
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterCategoria('');
+                  setFilterEstado('');
+                  setFilterSubcategoria('');
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+              >
+                Limpiar Filtros
+              </button>
+            </div>
+          </div>
+
+          {showAdvancedFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Subcategoría</label>
+                <select
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700"
+                  value={filterSubcategoria}
+                  onChange={(e) => { setFilterSubcategoria(e.target.value); setPage(1); }}
+                >
+                  <option value="">Todas</option>
+                  <option value="Socio">Socio</option>
+                  <option value="Socio Patrimonial">Socio Patrimonial</option>
+                  <option value="Socio Vitalicio">Socio Vitalicio</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Fecha de Alta (Desde)</label>
+                <input type="date" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Fecha de Alta (Hasta)</label>
+                <input type="date" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Tabla de socios */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Socio</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Categoría</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Deuda</th>
+                  <th className="px-6 py-4 text-center text-[11px] font-semibold text-gray-500 uppercase tracking-wider"></th>
+                  <th className="px-6 py-4 text-right text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {pageMembers.map((member) => {
+                  const deuda = memberDebtMap[member.id]?.saldo ?? member.deudaTotal ?? 0;
+                  const estadoCalc = memberDebtMap[member.id]?.estadoCalc ?? member.estado;
+                  return (
+                    <tr key={member.id} className="hover:bg-gray-50/60">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            {member.foto ? (
+                              <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={member.foto}
+                                alt={`${member.nombres} ${member.apellidos}`}
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).src='/avatar-placeholder.png'; }}
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                                <User className="w-5 h-5 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {member.nombres} {member.apellidos}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {member.codigo} • CI: {member.ci}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-900">
+                          {member.categoria === 'Individual' ? '👤' : '👥'} <span className="ml-1">{member.subcategoria}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <EstadoBadge estado={estadoCalc} />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`text-sm font-medium ${deuda > 0 ? 'text-amber-700' : 'text-gray-900'}`}>
+                          {formatCurrency(Math.max(0, deuda))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <button
+                          onClick={() => handleOpenCobranzaModal(member)}
+                          className="bg-custom-blue text-white px-3 py-1.5 rounded-md text-sm hover:bg-custom-blue shadow-sm"
+                        >
+                          Cobrar
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={(e) => openFloatingMenu(member.id, e)}
+                          className="text-gray-500 hover:text-gray-700 p-1 rounded-md hover:bg-gray-100"
+                          title="Más acciones"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                        {openMenuMemberId === member.id && (
+                          <div
+                            className="fixed z-50 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1"
+                            style={{ left: `${menuPos.x}px`, top: `${menuPos.y}px` }}
+                          >
+                            <Link
+                              href={`/admin/socios/${member.id}`}
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              onClick={() => setOpenMenuMemberId(null)}
+                            >
+                              <User className="w-4 h-4 mr-2" />
+                              Ver Detalles
+                            </Link>
+                            <button
+                              onClick={() => { handleOpenCobranzaModal(member); setOpenMenuMemberId(null); }}
+                              className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-900 hover:bg-gray-50"
+                            >
+                              <CreditCard className="w-4 h-4 mr-2" />
+                              Pagos / Servicios
+                            </button>
+                            {/* Nueva opción para Deudas Pendientes */}
+                            <button
+                              onClick={() => { 
+                                setSelectedMemberForDebts(member); 
+                                setShowDebtsModal(true);
+                                loadPendingDebits(member.id);
+                                setOpenMenuMemberId(null);
+                                
+                                // Inicializar fecha de pago automáticamente
+                                const today = new Date().toISOString().split('T')[0];
+                                setDebtPaymentForm(prev => ({
+                                  ...prev,
+                                  fecha: today
+                                }));
+                              }}
+                              className="flex items-center w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50"
+                            >
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                              </svg>
+                              Deudas Pendientes
+                            </button>
+                            {member.subcategoria === 'NO SOCIO' && (
+                              <button
+                                onClick={() => { handleConvertToSocio(member.id); setOpenMenuMemberId(null); }}
+                                className="flex items-center w-full text-left px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-50"
+                              >
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Convertir a Socio
+                              </button>
+                            )}
+                            <button
+                              onClick={() => { handleDelete(member.id); setOpenMenuMemberId(null); }}
+                              className="flex items-center w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Eliminar
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Paginación */}
+          {filteredMembers.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-6 border-t border-gray-200 bg-gray-50/50">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Filas por página:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+                  className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+              <div className="text-sm text-gray-600">
+                Mostrando {start + 1}–{Math.min(end, filteredMembers.length)} de {filteredMembers.length}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={pageSafe <= 1}
+                >
+                  Anterior
+                </button>
+                <span className="text-sm text-gray-700">Página {pageSafe} de {totalPages}</span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="px-3 py-1.5 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={pageSafe >= totalPages}
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* === Modal NO-SOCIO Registration === */}
+      {showNoSocioModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-no-socio-title"
+        >
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 id="modal-no-socio-title" className="text-xl font-semibold text-gray-900">
+                  Registro No-Socio
+                </h2>
+                <button
+                  onClick={closeNoSocioModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombres *
+                    </label>
+                    <input
+                      type="text"
+                      value={noSocioForm.nombres}
+                      onChange={(e) => setNoSocioForm(prev => ({ ...prev, nombres: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="Ingrese nombres"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Apellidos *
+                    </label>
+                    <input
+                      type="text"
+                      value={noSocioForm.apellidos}
+                      onChange={(e) => setNoSocioForm(prev => ({ ...prev, apellidos: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="Ingrese apellidos"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CI
+                  </label>
+                  <input
+                    type="text"
+                    value={noSocioForm.ci}
+                    onChange={(e) => {
+                      const ciValue = e.target.value;
+                      setNoSocioForm(prev => ({ ...prev, ci: ciValue }));
+                      
+                      // Validar CI en tiempo real si no está vacío
+                      if (ciValue.trim()) {
+                        const existingMember = members.find(member => 
+                          member.ci && member.ci.trim().toLowerCase() === ciValue.trim().toLowerCase()
+                        );
+                        
+                        if (existingMember) {
+                          const memberType = existingMember.subcategoria === 'NO SOCIO' ? 'no-socio' : 'socio';
+                          setCiValidationError(`Ya existe un ${memberType} registrado con esta CI: ${existingMember.nombres} ${existingMember.apellidos} (${existingMember.codigo})`);
+                        } else {
+                          setCiValidationError('');
+                        }
+                      } else {
+                        setCiValidationError('');
+                      }
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${
+                      ciValidationError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
+                    placeholder="Cédula de identidad"
+                  />
+                  {ciValidationError && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <svg className="w-4 h-4 mr-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {ciValidationError}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    value={noSocioForm.telefono}
+                    onChange={(e) => setNoSocioForm(prev => ({ ...prev, telefono: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="Número de teléfono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={noSocioForm.email}
+                    onChange={(e) => setNoSocioForm(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="Correo electrónico"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={closeNoSocioModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleCreateNoSocio}
+                  disabled={!noSocioForm.nombres.trim() || !noSocioForm.apellidos.trim() || !!ciValidationError}
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  Crear y Cobrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === Modal UNIFICADO === */}
+      {showChargeModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-pago-unificado-title"
+        >
+          <div
+            className="w-full max-w-7xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 id="modal-pago-unificado-title" className="text-lg font-semibold text-gray-900">Cobranza</h3>
+                  {selectedMemberForService && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      <span className="font-medium">
+                        {selectedMemberForService.nombres} {selectedMemberForService.apellidos}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-0.5">{selectedMemberForService.codigo}</p>
+                    </div>
+                  )}
+                </div>
+                <button onClick={handleCloseCobranzaModal} className="text-gray-400 hover:text-gray-600">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Selector de Condición: CONTADO vs CREDITO */}
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">🎯 Condición de Operación</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Al Contado */}
+                  <div 
+                    className={`relative rounded-xl border-2 p-4 cursor-pointer transition-all ${
+                      unifiedForm.condicion === 'CONTADO'
+                        ? 'border-green-500 bg-green-50' 
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    onClick={() => {
+                      setShowFormValidation(false);
+                      setUnifiedForm(prev => ({ 
+                        ...prev, 
+                        condicion: 'CONTADO',
+                        pagoAplicado: prev.monto // En contado, pago aplicado = monto total
+                      }));
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                        unifiedForm.condicion === 'CONTADO' ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                      }`}>
+                        {unifiedForm.condicion === 'CONTADO' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium text-gray-900">💳 Al Contado</h5>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Se genera débito + pago inmediato por el monto total
+                        </p>
+                        <div className="text-xs text-green-700 mt-2 font-medium">
+                          ✅ Pago completo • ✅ Recibo inmediato • ✅ Sin deuda pendiente
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* A Crédito */}
+                  <div 
+                    className={`relative rounded-xl border-2 p-4 cursor-pointer transition-all ${
+                      unifiedForm.condicion === 'CREDITO'
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    onClick={() => {
+                      setShowFormValidation(false);
+                      setUnifiedForm(prev => ({ 
+                        ...prev, 
+                        condicion: 'CREDITO',
+                        pagoAplicado: '' // En crédito, el pago es opcional
+                      }));
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                        unifiedForm.condicion === 'CREDITO' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                      }`}>
+                        {unifiedForm.condicion === 'CREDITO' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium text-gray-900">📋 A Crédito</h5>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Se genera débito, pago opcional (parcial o diferido)
+                        </p>
+                        <div className="text-xs text-blue-700 mt-2 font-medium">
+                          📝 Deuda registrada • 💰 Pago parcial opcional • 🔄 Saldo pendiente
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ===== FORMULARIO UNIFICADO ===== */}
+              <div className="space-y-6">
+                
+                {/* ===== 1. DATOS DEL SERVICIO (Campos globales únicos) ===== */}
+                <div className="bg-white border border-gray-200 rounded-xl p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                    📋 Datos del Servicio
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Fecha (único para todos los conceptos) */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Fecha *</label>
+                      <input
+                        type="date"
+                        value={unifiedForm.fecha}
+                        onChange={(e) => handleFechaGlobalChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-gray-800"
+                      />
+                      {showFormValidation && !unifiedForm.fecha && (
+                        <p className="text-xs text-red-600 mt-1">Fecha requerida</p>
+                      )}
+                    </div>
+
+                    {/* Observaciones (único para todos los conceptos) */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Observaciones</label>
+                      <textarea
+                        rows={2}
+                        value={unifiedForm.observaciones}
+                        onChange={(e) => setUnifiedForm(prev => ({ ...prev, observaciones: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-gray-800"
+                        placeholder="Observaciones adicionales..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      💡 Los conceptos (Servicio, Tipo, Monto, Vencimiento) se configuran individualmente en cada sección de pago (Contado/Crédito) debajo.
+                    </p>
+                  </div>
+                </div>
+
+                {/* ===== 2. CONDICIÓN DE PAGO (CONTADO/CREDITO) ===== */}
+                {unifiedForm.condicion === 'CONTADO' && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      💰 Pago Inmediato (Contado)
+                    </h3>
+                    {/* ===== Lista de conceptos para CONTADO (múltiples) ===== */}
+                    <div className="mb-4 bg-white p-3 rounded-lg border border-green-100">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-medium text-gray-800">Conceptos a pagar</h4>
+                        <button
+                          type="button"
+                          onClick={() => addConceptoToSection('CONTADO')}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-md text-sm"
+                        >
+                          <PlusIcon size={14} /> Añadir concepto
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {(unifiedForm.conceptosContado || []).map((c) => (
+                          <div key={c.id} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 items-end">
+                              {/* Servicio */}
+                              <div className="lg:col-span-3">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Servicio *</label>
+                                <select
+                                  value={c.servicioId}
+                                  onChange={(e) => {
+                                    const svc = services.find(s => s.id === e.target.value);
+                                    const montoDefault = svc ? String(selectedMemberForService?.subcategoria === 'NO SOCIO' ? (svc.precioNoSocio ?? svc.precio) : (svc.precioSocio ?? svc.precio)) : '';
+                                    
+                                    // Actualizar datos básicos del servicio
+                                    updateConceptoInSection('CONTADO', c.id, 'servicioId', e.target.value);
+                                    updateConceptoInSection('CONTADO', c.id, 'concepto', svc?.nombre || '');
+                                    updateConceptoInSection('CONTADO', c.id, 'monto', montoDefault ? formatNumberWithSeparator(montoDefault) : '');
+                                    
+                                    // Actualizar tipo de servicio - esto disparará automáticamente el recálculo del vencimiento
+                                    if (svc?.tipo) {
+                                      updateConceptoInSection('CONTADO', c.id, 'tipoServicio', svc.tipo);
+                                    }
+                                  }}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                >
+                                  <option value="">— Seleccionar —</option>
+                                  {services
+                                    .filter(s => !(unifiedForm.conceptosContado || []).some(x => x.servicioId === s.id && x.id !== c.id))
+                                    .map(s => (
+                                      <option key={s.id} value={s.id}>{s.nombre}</option>
+                                  ))}
+                                </select>
+                                {showFormValidation && !c.servicioId && (
+                                  <p className="text-xs text-red-600 mt-1">Requerido</p>
+                                )}
+                                {showFormValidation && c.servicioId && isServiceDuplicate(unifiedForm.conceptosContado, c.servicioId) && (
+                                  <p className="text-xs text-amber-700 mt-1">Repetido</p>
+                                )}
+                              </div>
+
+                              {/* Tipo */}
+                              <div className="lg:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Tipo</label>
+                                <select
+                                  value={c.tipoServicio}
+                                  onChange={(e) => updateConceptoInSection('CONTADO', c.id, 'tipoServicio', e.target.value as any)}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                >
+                                  <option value="MENSUAL">Mensual</option>
+                                  <option value="ANUAL">Anual</option>
+                                  <option value="UNICO">Único</option>
+                                  <option value="DIARIO">Diario</option>
+                                </select>
+                              </div>
+
+                              {/* Monto */}
+                              <div className="lg:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Monto *</label>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={c.monto}
+                                  onChange={(e) => updateConceptoInSection('CONTADO', c.id, 'monto', formatNumberWithSeparator(e.target.value))}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                  placeholder="50.000"
+                                />
+                                {showFormValidation && (!c.monto || parseFloat(getNumericValueSafe(c.monto)) <= 0) && (
+                                  <p className="text-xs text-red-600 mt-1">Requerido</p>
+                                )}
+                              </div>
+
+                              {/* Vencimiento */}
+                              <div className="lg:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Vencimiento</label>
+                                <input
+                                  type="date"
+                                  value={c.vencimiento || unifiedForm.vencimiento}
+                                  onChange={(e) => updateConceptoInSection('CONTADO', c.id, 'vencimiento', e.target.value)}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                />
+                                {showFormValidation && c.tipoServicio === 'DIARIO' && (!c.dias || c.dias <= 0) && (
+                                  <p className="text-xs text-red-600 mt-1">Días requeridos</p>
+                                )}
+                              </div>
+
+                              {/* Días (solo para DIARIO) */}
+                              <div className="lg:col-span-1">
+                                {c.tipoServicio === 'DIARIO' ? (
+                                  <>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Días</label>
+                                    <input
+                                      type="number"
+                                      min={1}
+                                      value={c.dias || 1}
+                                      onChange={(e) => updateConceptoInSection('CONTADO', c.id, 'dias', Math.max(1, parseInt(e.target.value) || 1))}
+                                      className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                    />
+                                  </>
+                                ) : (
+                                  <div></div>
+                                )}
+                              </div>
+
+                              {/* Suscripción checkbox */}
+                              <div className="lg:col-span-1 flex items-center justify-center">
+                                <label className="flex items-center gap-1" title="Crear suscripción">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!c.crearSuscripcion}
+                                    onChange={(e) => updateConceptoInSection('CONTADO', c.id, 'crearSuscripcion', e.target.checked)}
+                                    className="w-4 h-4"
+                                  />
+                                  <span className="text-xs">Suscripción</span>
+                                </label>
+                              </div>
+
+                              {/* Botón eliminar */}
+                              <div className="lg:col-span-1 flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => removeConceptoFromSection('CONTADO', c.id)}
+                                  className="inline-flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                  title="Eliminar concepto"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                      {/* Método de Pago */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Método de Pago *</label>
+                        <select
+                          value={unifiedForm.metodoPago}
+                          onChange={(e) => setUnifiedForm(prev => ({ ...prev, metodoPago: e.target.value as any }))}
+                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                            unifiedForm.metodoPago 
+                              ? 'border-gray-300 focus:ring-green-500 focus:border-green-500'
+                              : 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                          }`}
+                        >
+                          <option value="">— Seleccionar método —</option>
+                          <option value="EFECTIVO">Efectivo</option>
+                          <option value="TRANSFERENCIA">Transferencia</option>
+                          <option value="TARJETA">Tarjeta</option>
+                          <option value="CHEQUE">Cheque</option>
+                        </select>
+                        {!unifiedForm.metodoPago && (
+                          <p className="text-xs text-red-600 mt-1">Método de pago requerido para contado</p>
+                        )}
+                      </div>
+
+                      {/* Cobrador */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Cobrador</label>
+                              <select
+                value={unifiedForm.cobradorId}
+                          onChange={(e) => setUnifiedForm(prev => ({ ...prev, cobradorId: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="">— Sin cobrador —</option>
+                          {collectors.map(cobrador => (
+                            <option key={cobrador.id} value={cobrador.id}>{cobrador.nombres}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Número de Recibo/Factura */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Nº Recibo/Factura</label>
+                        <input
+                          type="text"
+                          value={unifiedForm.numeroRecibo}
+                          onChange={(e) => setUnifiedForm(prev => ({ ...prev, numeroRecibo: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="Ej: 00001234"
+                        />
+                      </div>
+
+                      {/* Referencia/Comprobante */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Referencia/Comprobante</label>
+                        <input
+                          type="text"
+                          value={unifiedForm.referencia}
+                          onChange={(e) => setUnifiedForm(prev => ({ ...prev, referencia: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="Nº de transferencia, ticket, etc."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== 3. CONFIGURACIÓN PARA CRÉDITO ===== */}
+                {unifiedForm.condicion === 'CREDITO' && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      📅 Configuración de Crédito
+                    </h3>
+
+                    {/* ===== Lista de conceptos para CREDITO (múltiples) ===== */}
+                    <div className="mb-4 bg-white p-3 rounded-lg border border-blue-100">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-medium text-gray-800">Conceptos (Crédito)</h4>
+                        <button
+                          type="button"
+                          onClick={() => addConceptoToSection('CREDITO')}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm"
+                        >
+                          <PlusIcon size={14} /> Añadir concepto
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {(unifiedForm.conceptosCredito || []).map((c) => (
+                          <div key={c.id} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 items-end">
+                              {/* Servicio */}
+                              <div className="lg:col-span-3">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Servicio *</label>
+                                <select
+                                  value={c.servicioId}
+                                  onChange={(e) => {
+                                    const svc = services.find(s => s.id === e.target.value);
+                                    const montoDefault = svc ? String(selectedMemberForService?.subcategoria === 'NO SOCIO' ? (svc.precioNoSocio ?? svc.precio) : (svc.precioSocio ?? svc.precio)) : '';
+                                    
+                                    // Actualizar datos básicos del servicio
+                                    updateConceptoInSection('CREDITO', c.id, 'servicioId', e.target.value);
+                                    updateConceptoInSection('CREDITO', c.id, 'concepto', svc?.nombre || '');
+                                    updateConceptoInSection('CREDITO', c.id, 'monto', montoDefault ? formatNumberWithSeparator(montoDefault) : '');
+                                    
+                                    // Actualizar tipo de servicio - esto disparará automáticamente el recálculo del vencimiento
+                                    if (svc?.tipo) {
+                                      updateConceptoInSection('CREDITO', c.id, 'tipoServicio', svc.tipo);
+                                    }
+                                  }}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                >
+                                  <option value="">— Seleccionar —</option>
+                                  {services
+                                    .filter(s => !(unifiedForm.conceptosCredito || []).some(x => x.servicioId === s.id && x.id !== c.id))
+                                    .map(s => (
+                                      <option key={s.id} value={s.id}>{s.nombre}</option>
+                                  ))}
+                                </select>
+                                {showFormValidation && !c.servicioId && (
+                                  <p className="text-xs text-red-600 mt-1">Requerido</p>
+                                )}
+                                {showFormValidation && c.servicioId && isServiceDuplicate(unifiedForm.conceptosCredito, c.servicioId) && (
+                                  <p className="text-xs text-amber-700 mt-1">Repetido</p>
+                                )}
+                              </div>
+
+                              {/* Tipo */}
+                              <div className="lg:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Tipo</label>
+                                <select
+                                  value={c.tipoServicio}
+                                  onChange={(e) => updateConceptoInSection('CREDITO', c.id, 'tipoServicio', e.target.value as any)}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                >
+                                  <option value="MENSUAL">Mensual</option>
+                                  <option value="ANUAL">Anual</option>
+                                  <option value="UNICO">Único</option>
+                                  <option value="DIARIO">Diario</option>
+                                </select>
+                              </div>
+
+                              {/* Monto */}
+                              <div className="lg:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Monto *</label>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={c.monto}
+                                  onChange={(e) => updateConceptoInSection('CREDITO', c.id, 'monto', formatNumberWithSeparator(e.target.value))}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                  placeholder="50.000"
+                                />
+                                {showFormValidation && (!c.monto || parseFloat(getNumericValueSafe(c.monto)) <= 0) && (
+                                  <p className="text-xs text-red-600 mt-1">Requerido</p>
+                                )}
+                              </div>
+
+                              {/* Vencimiento */}
+                              <div className="lg:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Vencimiento</label>
+                                <input
+                                  type="date"
+                                  value={c.vencimiento || unifiedForm.vencimiento}
+                                  onChange={(e) => updateConceptoInSection('CREDITO', c.id, 'vencimiento', e.target.value)}
+                                  className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                />
+                                {showFormValidation && c.tipoServicio === 'DIARIO' && (!c.dias || c.dias <= 0) && (
+                                  <p className="text-xs text-red-600 mt-1">Días requeridos</p>
+                                )}
+                              </div>
+
+                              {/* Días (solo para DIARIO) */}
+                              <div className="lg:col-span-1">
+                                {c.tipoServicio === 'DIARIO' ? (
+                                  <>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Días</label>
+                                    <input
+                                      type="number"
+                                      min={1}
+                                      value={c.dias || 1}
+                                      onChange={(e) => updateConceptoInSection('CREDITO', c.id, 'dias', Math.max(1, parseInt(e.target.value) || 1))}
+                                      className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none"
+                                    />
+                                  </>
+                                ) : (
+                                  <div></div>
+                                )}
+                              </div>
+
+                              {/* Suscripción checkbox */}
+                              <div className="lg:col-span-1 flex items-center justify-center">
+                                <label className="flex items-center gap-1" title="Crear suscripción">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!c.crearSuscripcion}
+                                    onChange={(e) => updateConceptoInSection('CREDITO', c.id, 'crearSuscripcion', e.target.checked)}
+                                    className="w-4 h-4"
+                                  />
+                                  <span className="text-xs">Suscripción</span>
+                                </label>
+                              </div>
+
+                              {/* Botón eliminar */}
+                              <div className="lg:col-span-1 flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => removeConceptoFromSection('CREDITO', c.id)}
+                                  className="inline-flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                  title="Eliminar concepto"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Pagos Parciales */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="checkbox"
+                          id="permitirPagosParc"
+                          checked={unifiedForm.permitirPagosParc}
+                          onChange={(e) => setUnifiedForm(prev => ({ ...prev, permitirPagosParc: e.target.checked, pagoAplicado: e.target.checked ? prev.pagoAplicado : '' }))}
+                          className="w-4 h-4 text-blue-600"
+                        />
+                        <label htmlFor="permitirPagosParc" className="text-sm font-medium text-gray-700">
+                          Aplicar pago parcial ahora
+                        </label>
+                      </div>
+                      
+                      {unifiedForm.permitirPagosParc && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-3 p-3 bg-white rounded-lg border border-blue-200">
+                          {/* Monto del Pago Parcial */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Monto Pago (Gs.) *</label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={unifiedForm.pagoAplicado}
+                              onChange={(e) => {
+                                const formatted = formatNumberWithSeparator(e.target.value);
+                                setUnifiedForm(prev => ({ ...prev, pagoAplicado: formatted }));
+                              }}
+                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                                unifiedForm.pagoAplicado && parseFloat(getNumericValue(unifiedForm.pagoAplicado)) > 0 && parseFloat(getNumericValue(unifiedForm.pagoAplicado)) <= parseFloat(getNumericValue(unifiedForm.monto || '0'))
+                                  ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                                  : 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                              }`}
+                              placeholder="25.000"
+                            />
+                            {unifiedForm.pagoAplicado && (
+                              <>
+                                {parseFloat(getNumericValue(unifiedForm.pagoAplicado)) <= 0 && (
+                                  <p className="text-xs text-red-600 mt-1">Monto debe ser mayor a 0</p>
+                                )}
+                                {parseFloat(getNumericValue(unifiedForm.pagoAplicado)) > parseFloat(getNumericValue(unifiedForm.monto || '0')) && (
+                                  <p className="text-xs text-red-600 mt-1">No puede superar el monto total</p>
+                                )}
+                              </>
+                            )}
+                          </div>
+
+                          {/* Método de Pago Parcial */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Método de Pago *</label>
+                            <select
+                              value={unifiedForm.metodoPago}
+                              onChange={(e) => setUnifiedForm(prev => ({ ...prev, metodoPago: e.target.value as any }))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">— Seleccionar método —</option>
+                              <option value="EFECTIVO">Efectivo</option>
+                              <option value="TRANSFERENCIA">Transferencia</option>
+                              <option value="TARJETA">Tarjeta</option>
+                              <option value="CHEQUE">Cheque</option>
+                            </select>
+                          </div>
+
+                          {/* Referencia Pago Parcial */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Referencia</label>
+                            <input
+                              type="text"
+                              value={unifiedForm.referencia}
+                              onChange={(e) => setUnifiedForm(prev => ({ ...prev, referencia: e.target.value }))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Nº comprobante"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== 4. RESUMEN Y BOTONES ===== */}
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                    {/* Resumen */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2">📊 Resumen</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Monto Total:</span>
+                          <span className="font-medium">Gs. {(() => {
+                            const total = unifiedForm.condicion === 'CONTADO'
+                              ? calculateTotal(unifiedForm.conceptosContado)
+                              : calculateTotal(unifiedForm.conceptosCredito);
+                            if (total > 0) return parseInt(String(total)).toLocaleString('es-PY');
+                            return '0';
+                          })()}</span>
+                        </div>
+                        
+                        {unifiedForm.condicion === 'CONTADO' && (
+                          <div className="flex justify-between text-green-700">
+                            <span>Estado:</span>
+                            <span className="font-medium">PAGO COMPLETO</span>
+                          </div>
+                        )}
+                        
+                        {unifiedForm.condicion === 'CREDITO' && (
+                          <>
+                            {unifiedForm.permitirPagosParc && unifiedForm.pagoAplicado ? (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Pago Aplicado:</span>
+                                  <span className="font-medium text-green-600">Gs. {parseInt(getNumericValue(unifiedForm.pagoAplicado || '0')).toLocaleString('es-PY')}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Saldo Pendiente:</span>
+                                  <span className="font-medium text-orange-600">Gs. {(parseInt(getNumericValue(unifiedForm.monto || '0')) - parseInt(getNumericValue(unifiedForm.pagoAplicado || '0'))).toLocaleString('es-PY')}</span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex justify-between text-orange-700">
+                                <span>Estado:</span>
+                                <span className="font-medium">PENDIENTE DE PAGO</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Botones */}
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => {
+                          if (unifiedForm.condicion === 'CONTADO') {
+                            handleUnifiedContadoPayment();
+                          } else {
+                            handleUnifiedCreditoService();
+                          }
+                        }}
+                        disabled={saving || !isUnifiedFormValid()}
+                        className={`px-4 py-2 rounded-lg text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
+                          unifiedForm.condicion === 'CONTADO' 
+                            ? 'bg-green-600 hover:bg-green-700' 
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                      >
+                        {saving ? 'Guardando...' : (unifiedForm.condicion === 'CONTADO' ? '💰 Registrar Pago Completo' : '📅 Registrar Servicio')}
+                      </button>
+                      
+                      <button
+                        onClick={handleCloseCobranzaModal}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== MODAL DE DEUDAS PENDIENTES ===== */}
+      {showDebtsModal && selectedMemberForDebts && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
+            {/* Header del Modal */}
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-white flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white bg-opacity-20 p-1.5 rounded-lg">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold">Gestión de Deudas Pendientes</h2>
+                    <p className="text-amber-100 text-sm">
+                      {selectedMemberForDebts.nombres} {selectedMemberForDebts.apellidos} 
+                      <span className="ml-2 opacity-80">• Código: {selectedMemberForDebts.codigo}</span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowDebtsModal(false);
+                    setSelectedMemberForDebts(null);
+                    setSelectedDebits([]);
+                    
+                    // Resetear formulario de pago de deudas
+                    setDebtPaymentForm({
+                      fecha: '',
+                      montoAPagar: '',
+                      metodoPago: '',
+                      cobradorId: '',
+                      numeroRecibo: '',
+                      referencia: '',
+                      observaciones: ''
+                    });
+                  }}
+                  className="text-white hover:text-amber-200 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Contenido del Modal */}
+            <div className="flex-1 overflow-y-auto p-4">
+              
+              {/* Formulario de Pago - Siempre visible */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <h3 className="text-base font-semibold text-green-800 mb-3">💳 Datos del Pago</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {/* Fecha de Pago */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-0.5">Fecha de Pago *</label>
+                    <input
+                      type="date"
+                      value={debtPaymentForm.fecha}
+                      onChange={(e) => setDebtPaymentForm(prev => ({ ...prev, fecha: e.target.value }))}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+
+                  {/* Monto a Pagar */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-0.5">Monto a Pagar (Gs.) *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={debtPaymentForm.montoAPagar}
+                      onChange={(e) => handleMontoAPagarChange(e.target.value)}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      placeholder="50.000"
+                    />
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      💡 Auto-asignar por antigüedad
+                    </div>
+                  </div>
+
+                  {/* Método de Pago */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-0.5">Método de Pago *</label>
+                    <select
+                      value={debtPaymentForm.metodoPago}
+                      onChange={(e) => setDebtPaymentForm(prev => ({ ...prev, metodoPago: e.target.value }))}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    >
+                      <option value="">— Seleccionar método —</option>
+                      <option value="EFECTIVO">Efectivo</option>
+                      <option value="TRANSFERENCIA">Transferencia</option>
+                      <option value="TARJETA">Tarjeta</option>
+                      <option value="CHEQUE">Cheque</option>
+                    </select>
+                  </div>
+
+                  {/* Cobrador */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-0.5">Cobrador</label>
+                    <select
+                      value={debtPaymentForm.cobradorId}
+                      onChange={(e) => setDebtPaymentForm(prev => ({ ...prev, cobradorId: e.target.value }))}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    >
+                      <option value="">— Sin asignar —</option>
+                      {collectors.map(collector => (
+                        <option key={collector.id} value={collector.id}>
+                          {collector.nombres} {collector.apellidos}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Número de Recibo */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-0.5">Nro. de Recibo/Factura</label>
+                    <input
+                      type="text"
+                      value={debtPaymentForm.numeroRecibo}
+                      onChange={(e) => setDebtPaymentForm(prev => ({ ...prev, numeroRecibo: e.target.value }))}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      placeholder="001-001-0000123"
+                    />
+                  </div>
+
+                  {/* Referencia/Comprobante */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-0.5">Referencia/Comprobante</label>
+                    <input
+                      type="text"
+                      value={debtPaymentForm.referencia}
+                      onChange={(e) => setDebtPaymentForm(prev => ({ ...prev, referencia: e.target.value }))}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      placeholder="Nº transferencia, cheque, etc."
+                    />
+                  </div>
+                </div>
+
+                {/* Observaciones */}
+                <div className="mt-3">
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">Observaciones</label>
+                  <textarea
+                    rows={2}
+                    value={debtPaymentForm.observaciones}
+                    onChange={(e) => setDebtPaymentForm(prev => ({ ...prev, observaciones: e.target.value }))}
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Observaciones adicionales sobre el pago..."
+                  />
+                </div>
+
+                {/* Resumen del Pago - Solo si hay débitos seleccionados */}
+                {selectedDebits.length > 0 && (
+                  <div className="mt-4 bg-white border border-green-200 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">📊 Resumen del Pago</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Débitos Seleccionados:</span>
+                          <span className="font-medium">{selectedDebits.length}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Adeudado:</span>
+                          <span className="font-medium text-red-600">
+                            Gs. {calculateSelectedDebitsTotal().toLocaleString('es-PY')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Monto a Pagar:</span>
+                          <span className="font-medium text-green-600">
+                            Gs. {debtPaymentForm.montoAPagar ? parseInt(getNumericValue(debtPaymentForm.montoAPagar)).toLocaleString('es-PY') : '0'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Saldo Restante:</span>
+                          <span className={`font-medium ${
+                            (calculateSelectedDebitsTotal() - (debtPaymentForm.montoAPagar ? parseInt(getNumericValue(debtPaymentForm.montoAPagar)) : 0)) <= 0
+                              ? 'text-green-600' : 'text-orange-600'
+                          }`}>
+                            Gs. {Math.max(0, calculateSelectedDebitsTotal() - (debtPaymentForm.montoAPagar ? parseInt(getNumericValue(debtPaymentForm.montoAPagar)) : 0)).toLocaleString('es-PY')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Método de Pago:</span>
+                          <span className="font-medium">{debtPaymentForm.metodoPago || 'No seleccionado'}</span>
+                        </div>
+                        {(debtPaymentForm.montoAPagar ? parseInt(getNumericValue(debtPaymentForm.montoAPagar)) : 0) < calculateSelectedDebitsTotal() ? (
+                          <div className="bg-blue-100 border border-blue-300 text-blue-800">
+                            💡 <strong>Pago parcial:</strong> Se pagará parcialmente los débitos seleccionados, priorizando los más antiguos.
+                          </div>
+                        ) : (
+                          <div className="bg-green-100 border border-green-300 text-green-800">
+                            ✅ <strong>Pago completo:</strong> Se saldarán todos los débitos seleccionados.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Resumen de Estado */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-red-100 p-1.5 rounded-full">
+                      <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-600">Deuda Total</div>
+                      <div className="text-base font-bold text-red-700">
+                        Gs. {(
+                          memberDebtMap[selectedMemberForDebts.id]?.saldo || 
+                          selectedMemberForDebts.deudaTotal || 0
+                        ).toLocaleString('es-PY')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-amber-100 p-1.5 rounded-full">
+                      <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-600">Débitos Pendientes</div>
+                      <div className="text-base font-bold text-amber-700">
+                        {pendingDebits.length}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-green-100 p-1.5 rounded-full">
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-600">Seleccionados</div>
+                      <div className="text-base font-bold text-green-700">
+                        {selectedDebits.length > 0 
+                          ? `Gs. ${calculateSelectedDebitsTotal().toLocaleString('es-PY')}`
+                          : 'Gs. 0'
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Controles y Filtros */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-sm font-medium text-gray-900">Acciones Rápidas:</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          if (pendingDebits.length > 0) {
+                            const allDebitIds = pendingDebits.map(d => d.id);
+                            setSelectedDebits(allDebitIds);
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200 transition-colors text-sm font-medium"
+                      >
+                        ✓ Seleccionar Todo
+                      </button>
+                      <button
+                        onClick={() => setSelectedDebits([])}
+                        className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm"
+                      >
+                        ✕ Limpiar
+                      </button>
+                      <button
+                        onClick={() => loadPendingDebits(selectedMemberForDebts.id)}
+                        disabled={loadingDebits}
+                        className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors text-sm disabled:opacity-50"
+                      >
+                        {loadingDebits ? '⟳' : '🔄'} Actualizar
+                      </button>
+                    </div>
+                  </div>
+
+                  {selectedDebits.length > 0 && (
+                    <div className="bg-white border border-green-200 rounded-md px-3 py-2">
+                      <span className="text-sm text-gray-600">Total seleccionado: </span>
+                      <span className="font-bold text-green-700">
+                        Gs. {calculateSelectedDebitsTotal().toLocaleString('es-PY')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Lista de Débitos Pendientes */}
+              <div className="bg-white border border-gray-200 rounded-lg">
+                <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
+                  <h3 className="text-xs font-medium text-gray-900">📋 Detalle de Débitos Pendientes</h3>
+                </div>
+
+                <div className="divide-y divide-gray-200">
+                  {loadingDebits ? (
+                    <div className="p-6 text-center">
+                      <div className="text-gray-500 text-sm">⟳ Cargando débitos pendientes...</div>
+                    </div>
+                  ) : pendingDebits.length > 0 ? (
+                    pendingDebits.map((debit, index) => {
+                      const saldoPendiente = (debit.monto || 0) - (debit.paidAmount || 0);
+                      const isVencido = debit.vencimiento && new Date(debit.vencimiento) < new Date();
+                      const isSelected = selectedDebits.includes(debit.id);
+                      const fechaVenc = debit.vencimiento ? new Date(debit.vencimiento) : null;
+                      const diasVencido = fechaVenc ? Math.floor((new Date().getTime() - fechaVenc.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+
+                      return (
+                        <div 
+                          key={debit.id}
+                          className={`p-3 transition-all ${
+                            isSelected 
+                              ? 'bg-green-50 border-l-4 border-green-400' 
+                              : isVencido 
+                                ? 'bg-red-50 hover:bg-red-100' 
+                                : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            {/* Checkbox */}
+                            <div className="mt-0.5">
+                              <input
+                                type="checkbox"
+                                id={`debt-${debit.id}`}
+                                checked={isSelected}
+                                onChange={(e) => handleDebitSelection(debit.id, e.target.checked)}
+                                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                              />
+                            </div>
+
+                            {/* Información del Débito */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <label 
+                                    htmlFor={`debt-${debit.id}`}
+                                    className="block text-sm font-medium text-gray-900 cursor-pointer"
+                                  >
+                                    {debit.concepto || 'Sin concepto'}
+                                  </label>
+                                  <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+                                    <span>📅 {debit.fecha ? new Date(debit.fecha).toLocaleDateString('es-PY') : 'N/A'}</span>
+                                    {debit.vencimiento && (
+                                      <span className={isVencido ? 'text-red-600 font-medium' : ''}>
+                                        ⏰ Venc: {new Date(debit.vencimiento).toLocaleDateString('es-PY')}
+                                        {isVencido && diasVencido > 0 && (
+                                          <span className="ml-1 text-red-500">({diasVencido} días)</span>
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="mt-1 flex items-center gap-1.5">
+                                    {isSelected && (
+                                      <span className="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs font-medium">
+                                        ✓ SELECCIONADO
+                                      </span>
+                                    )}
+                                    {isVencido && (
+                                      <span className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs font-medium">
+                                        ⚠ VENCIDO
+                                      </span>
+                                    )}
+                                    <span className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-xs">
+                                      {debit.origen || 'SERVICIO'}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Montos */}
+                                <div className="text-right ml-3">
+                                  <div className={`text-base font-bold ${isSelected ? 'text-green-700' : 'text-gray-900'}`}>
+                                    Gs. {saldoPendiente.toLocaleString('es-PY')}
+                                  </div>
+                                  {(debit.paidAmount || 0) > 0 && (
+                                    <div className="text-xs text-gray-500">
+                                      Pagado: Gs. {(debit.paidAmount || 0).toLocaleString('es-PY')}
+                                    </div>
+                                  )}
+                                  <div className="text-xs text-gray-400">
+                                    Total: Gs. {(debit.monto || 0).toLocaleString('es-PY')}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="p-6 text-center">
+                      <div className="text-gray-500 mb-2 text-sm">📭 No se encontraron débitos pendientes</div>
+                      <button
+                        onClick={() => loadPendingDebits(selectedMemberForDebts.id)}
+                        className="text-amber-600 hover:text-amber-700 font-medium text-xs"
+                      >
+                        🔄 Cargar débitos
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer con Acciones - Fijo en la parte inferior */}
+            <div className="bg-gray-50 border-t border-gray-200 px-4 py-3 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-gray-600">
+                    {selectedDebits.length > 0 
+                      ? `${selectedDebits.length} débito${selectedDebits.length > 1 ? 's' : ''} seleccionado${selectedDebits.length > 1 ? 's' : ''}`
+                      : 'Completa los datos de pago y selecciona los débitos'
+                    }
+                  </div>
+                  
+                  {pendingDebits && pendingDebits.length > 0 && (
+                    <button
+                      onClick={() => {
+                        if (debtPaymentForm.montoAPagar) {
+                          const amount = parseInt(getNumericValue(debtPaymentForm.montoAPagar));
+                          autoAssignByAge(amount);
+                        }
+                      }}
+                      disabled={!debtPaymentForm.montoAPagar}
+                      className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 border border-blue-200 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      🎯 Asignar por Antigüedad
+                    </button>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setShowDebtsModal(false);
+                      setSelectedMemberForDebts(null);
+                      setSelectedDebits([]);
+                      
+                      // Resetear formulario de pago de deudas
+                      setDebtPaymentForm({
+                        fecha: '',
+                        montoAPagar: '',
+                        metodoPago: '',
+                        cobradorId: '',
+                        numeroRecibo: '',
+                        referencia: '',
+                        observaciones: ''
+                      });
+                    }}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Cerrar
+                  </button>
+                  
+                  {selectedDebits.length > 0 && (
+                    <>
+                      <button
+                        onClick={() => {
+                          // Opción 1: Transferir la selección al modal principal de pagos/servicios
+                          const totalSelected = calculateSelectedDebitsTotal();
+                          setUnifiedForm(prev => ({
+                            ...prev,
+                            presupuestoDeudas: formatNumberWithSeparator(totalSelected.toString())
+                          }));
+                          
+                          // Cerrar este modal y abrir el de cobranza
+                          setShowDebtsModal(false);
+                          setSelectedMemberForService(selectedMemberForDebts);
+                          setShowChargeModal(true);
+                          setActiveTab('unified');
+                          setShowDebtAssignment(true); // Mostrar la sección expandida
+                          setSelectedMemberForDebts(null);
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 border border-blue-200 rounded hover:bg-blue-200 transition-colors"
+                      >
+                        📄 Ir a Pagos/Servicios
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          // Opción 2: Procesar pago directamente desde este modal
+                          console.log('Procesando pago de deudas:', {
+                            member: selectedMemberForDebts,
+                            selectedDebits,
+                            paymentData: debtPaymentForm,
+                            totalAmount: calculateSelectedDebitsTotal(),
+                            paymentAmount: debtPaymentForm.montoAPagar ? parseInt(getNumericValue(debtPaymentForm.montoAPagar)) : 0
+                          });
+                          
+                          // TODO: Implementar la llamada al API para procesar el pago
+                          alert('Pago procesado correctamente!\n\n(Esta funcionalidad se implementará próximamente)');
+                        }}
+                        disabled={!debtPaymentForm.fecha || !debtPaymentForm.montoAPagar || !debtPaymentForm.metodoPago}
+                        className="px-4 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition-colors font-medium"
+                      >
+                        💳 Procesar Pago
+                        {debtPaymentForm.montoAPagar && (
+                          <span className="ml-1 font-normal text-xs">
+                            (Gs. {parseInt(getNumericValue(debtPaymentForm.montoAPagar)).toLocaleString('es-PY')})
+                          </span>
+                        )}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </AdminLayout>
+  );
+}
+
+

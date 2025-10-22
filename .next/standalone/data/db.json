@@ -1,0 +1,1342 @@
+{
+  "members": [
+    {
+      "id": "uCZtTI1ZWfG7GQsvW5TdH",
+      "codigo": "12",
+      "estado": "AL_DIA",
+      "servicios": [],
+      "nombres": "Jose Domingo",
+      "apellidos": "Enciso Caceres",
+      "ci": "984567",
+      "ruc": "984567-4",
+      "categoria": "Familiar",
+      "subcategoria": "Socio",
+      "direccion": "Comandante Molas 1644 ",
+      "telefono": "021220398",
+      "celular": "0981123456",
+      "email": "josedmoingo@hotmail.es",
+      "nacimiento": "1993-11-21",
+      "nacionalidad": "Paraguaya",
+      "datosLaborales": "",
+      "alta": "2025-10-21",
+      "foto": "",
+      "observaciones": "",
+      "aplicarCuotaIngreso": true
+    },
+    {
+      "id": "UutkQJSxMSFf1wRoD3q22",
+      "codigo": "13",
+      "estado": "AL_DIA",
+      "servicios": [],
+      "nombres": "Carlos",
+      "apellidos": "Santacruz",
+      "ci": "4372778",
+      "ruc": "4372778-4",
+      "categoria": "Individual",
+      "subcategoria": "Socio Patrimonial",
+      "direccion": "Concordia 744",
+      "telefono": "021220398",
+      "celular": "0981123456",
+      "email": "carlos09@gmail.com",
+      "nacimiento": "1993-11-21",
+      "nacionalidad": "Paraguaya",
+      "datosLaborales": "",
+      "alta": "2025-10-22",
+      "foto": "",
+      "observaciones": "",
+      "aplicarCuotaIngreso": true
+    },
+    {
+      "id": "HumLNGSul8NL7qOUNnLXW",
+      "codigo": "14",
+      "estado": "AL_DIA",
+      "servicios": [],
+      "nombres": "Jimena",
+      "apellidos": "Ruiz",
+      "ci": "1234567",
+      "ruc": "1234567-8",
+      "categoria": "Individual",
+      "subcategoria": "Socio Vitalicio",
+      "direccion": "Concordia 745",
+      "telefono": "021220398",
+      "celular": "0981123456",
+      "email": "jimenruiz@gmail.com",
+      "nacimiento": "1993-11-21",
+      "nacionalidad": "Paraguaya",
+      "datosLaborales": "",
+      "alta": "2025-10-22",
+      "foto": "",
+      "observaciones": "",
+      "aplicarCuotaIngreso": false
+    }
+  ],
+  "payments": [
+    {
+      "id": "PAY-000232",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "monto": 120000,
+      "concepto": "Pago contado: HIDROGYM",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "OAR7-0LMxDL0Dr9VUQkc9",
+      "comisionCobrador": 0,
+      "comisionPagada": false,
+      "observaciones": "",
+      "numeroRecibo": "123",
+      "allocations": [
+        {
+          "debitId": "MOV-000352",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000233",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "monto": 120000,
+      "concepto": "Pago contado: HIDROGYM",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "OAR7-0LMxDL0Dr9VUQkc9",
+      "comisionCobrador": 0,
+      "comisionPagada": false,
+      "observaciones": "",
+      "numeroRecibo": "123",
+      "allocations": [
+        {
+          "debitId": "MOV-000353",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000234",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-25T12:00:00.000Z",
+      "monto": 5000000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "transferencia",
+      "cobradorId": "c1",
+      "comisionCobrador": 625000,
+      "comisionPagada": false,
+      "observaciones": "Referencia: 123",
+      "numeroRecibo": "123",
+      "allocations": [
+        {
+          "debitId": "MOV-000348",
+          "amount": 5000000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000235",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "monto": 800000,
+      "concepto": "Pago de 1 débito pendiente",
+      "formaPago": "efectivo",
+      "cobradorId": "OAR7-0LMxDL0Dr9VUQkc9",
+      "comisionCobrador": 0,
+      "comisionPagada": false,
+      "observaciones": "",
+      "numeroRecibo": "",
+      "allocations": [
+        {
+          "debitId": "MOV-000354",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000236",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "monto": 800000,
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "comisionCobrador": 100000,
+      "comisionPagada": false,
+      "observaciones": "",
+      "numeroRecibo": "123",
+      "allocations": [
+        {
+          "debitId": "MOV-000359",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "PAY-000237",
+      "memberId": "UutkQJSxMSFf1wRoD3q22",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "monto": 100000,
+      "concepto": "Pago contado: Tenis",
+      "formaPago": "EFECTIVO",
+      "cobradorId": "c1",
+      "comisionCobrador": 12000,
+      "comisionPagada": false,
+      "observaciones": "",
+      "numeroRecibo": "11",
+      "allocations": [
+        {
+          "debitId": "MOV-000360",
+          "amount": 100000
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "id": "s1",
+      "nombre": "Cuota Social Mensual",
+      "descripcion": "Cuota mensual obligatoria para todos los socios",
+      "precio": 150000,
+      "tipo": "MENSUAL",
+      "obligatorio": true,
+      "aplicaA": [
+        "Socio",
+        "Socio Patrimonial"
+      ],
+      "activo": true,
+      "categoria": "Otros",
+      "precioSocio": 150000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "s2",
+      "nombre": "Cuota de Ingreso",
+      "descripcion": "Pago único al ingresar como socio",
+      "precio": 15000000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [
+        "Socio"
+      ],
+      "activo": true,
+      "socios": true,
+      "noSocios": false,
+      "categoria": "OTROS",
+      "precioSocio": 15000000,
+      "precioNoSocio": 15000000
+    },
+    {
+      "id": "s4",
+      "nombre": "Tenis",
+      "descripcion": "Clases de tenis mensuales",
+      "precio": 100000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "comisionCobrador": 12,
+      "activo": true,
+      "precioSocio": 100000,
+      "precioNoSocio": 100000,
+      "permiteAgendamiento": true,
+      "aplicaA": [],
+      "categoria": "Deportes",
+      "socios": true,
+      "noSocios": false,
+      "espacios": [
+        "Tenis 1",
+        "Tenis 2"
+      ],
+      "permiteHorasExtras": true,
+      "precioHoraExtra": 80000
+    },
+    {
+      "id": "s5",
+      "nombre": "Alquiler Salón Social",
+      "descripcion": "Alquiler del salón para eventos",
+      "precio": 800000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "activo": true,
+      "precioSocio": 800000,
+      "precioNoSocio": 800000,
+      "permiteAgendamiento": true,
+      "aplicaA": [],
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": false,
+      "permiteHorasExtras": true,
+      "precioHoraExtra": 500000,
+      "espacios": []
+    },
+    {
+      "id": "srv-1758646234537-el9319blp",
+      "nombre": "ADHESION",
+      "descripcion": "Servicio ADHESION",
+      "precio": 50000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": false,
+      "precioSocio": 50000,
+      "precioNoSocio": 50000
+    },
+    {
+      "id": "srv-1758646234537-uebnwdlwc",
+      "nombre": "BASQUET",
+      "descripcion": "Servicio BASQUET",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234537-if8ix3wwt",
+      "nombre": "SALON CASCADA",
+      "descripcion": "Servicio SALON CASCADA",
+      "precio": 1000000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 1000000,
+      "precioNoSocio": 1200000,
+      "permiteAgendamiento": true
+    },
+    {
+      "id": "srv-1758646234537-ki5qchgb1",
+      "nombre": "CUOTA DE SOCIAL",
+      "descripcion": "Servicio CUOTA DE SOCIAL",
+      "precio": 150000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": false,
+      "precioSocio": 150000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234538-qsrprkzmv",
+      "nombre": "FOTO CARNET",
+      "descripcion": "Servicio FOTO CARNET",
+      "precio": 25000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": false,
+      "precioSocio": 25000,
+      "precioNoSocio": 25000
+    },
+    {
+      "id": "srv-1758646234538-m57iubgt1",
+      "nombre": "HIDROGYM",
+      "descripcion": "Servicio HIDROGYM",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234538-1vbx98al1",
+      "nombre": "INGRESOS DEPORTIVOS NO SOCIOS",
+      "descripcion": "Servicio INGRESOS DEPORTIVOS NO SOCIOS",
+      "precio": 100000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": false,
+      "noSocios": true,
+      "precioSocio": null,
+      "precioNoSocio": 100000
+    },
+    {
+      "id": "srv-1758646234538-3eijznqxp",
+      "nombre": "INGRESOS POR FESTIVALES",
+      "descripcion": "Servicio INGRESOS POR FESTIVALES",
+      "precio": 100000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 80000,
+      "precioNoSocio": 100000
+    },
+    {
+      "id": "srv-1758646234538-6qdc4irpr",
+      "nombre": "NATACION COMPETITIVA",
+      "descripcion": "Servicio NATACION COMPETITIVA",
+      "precio": 100000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 100000,
+      "precioNoSocio": 130000
+    },
+    {
+      "id": "srv-1758646234538-w4qqepwj4",
+      "nombre": "NATACION",
+      "descripcion": "Servicio NATACION",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "srv-1758646234538-pvrbvadb8",
+      "nombre": "QUINCHO CENTRAL",
+      "descripcion": "Servicio QUINCHO CENTRAL",
+      "precio": 800000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 800000,
+      "precioNoSocio": 1000000,
+      "permiteAgendamiento": true,
+      "permiteHorasExtras": true,
+      "precioHoraExtra": 500000,
+      "espacios": []
+    },
+    {
+      "id": "srv-1758646234538-but12xkgz",
+      "nombre": "QUINCHO CHICO",
+      "descripcion": "Servicio QUINCHO CHICO",
+      "precio": 800000,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "ALQUILER",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 800000,
+      "precioNoSocio": 1000000
+    },
+    {
+      "id": "srv-1758646234538-h90cv603b",
+      "nombre": "VOLLEY",
+      "descripcion": "Servicio VOLLEY",
+      "precio": 120000,
+      "tipo": "MENSUAL",
+      "obligatorio": false,
+      "aplicaA": [],
+      "comisionCobrador": null,
+      "activo": true,
+      "categoria": "DEPORTES",
+      "socios": true,
+      "noSocios": true,
+      "precioSocio": 120000,
+      "precioNoSocio": 150000
+    },
+    {
+      "id": "s_diario_O1a0obmE",
+      "nombre": "INGRESO DIARIO PILETA",
+      "descripcion": "Acceso diario a la pileta para no-socios",
+      "precio": 15000,
+      "precioSocio": 10000,
+      "precioNoSocio": 15000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Deportes",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 5
+    },
+    {
+      "id": "s_diario_66Vqnebb",
+      "nombre": "INGRESO DIARIO GIMNASIO",
+      "descripcion": "Acceso diario al gimnasio",
+      "precio": 20000,
+      "precioSocio": 15000,
+      "precioNoSocio": 20000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Deportes",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 5
+    },
+    {
+      "id": "s_diario_NT3GXqI4",
+      "nombre": "ESTACIONAMIENTO DIARIO",
+      "descripcion": "Estacionamiento por día",
+      "precio": 8000,
+      "precioSocio": 5000,
+      "precioNoSocio": 8000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Servicios",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 0
+    },
+    {
+      "id": "s_diario_Aj9zmftZ",
+      "nombre": "ALQUILER CANCHA TENIS DIA",
+      "descripcion": "Alquiler de cancha de tenis por día",
+      "precio": 50000,
+      "precioSocio": 40000,
+      "precioNoSocio": 50000,
+      "tipo": "DIARIO",
+      "obligatorio": false,
+      "activo": true,
+      "categoria": "Alquileres",
+      "socios": true,
+      "noSocios": true,
+      "comisionCobrador": 8,
+      "aplicaA": [],
+      "permiteAgendamiento": true
+    },
+    {
+      "id": "tE5UeE4TV-h-o0TAWs_U1",
+      "nombre": "Horas Extras",
+      "descripcion": "",
+      "precio": 0,
+      "tipo": "UNICO",
+      "obligatorio": false,
+      "aplicaA": [
+        "Socio",
+        "Socio Patrimonial",
+        "Socio Vitalicio"
+      ],
+      "activo": true,
+      "categoria": "OTROS",
+      "socios": true,
+      "noSocios": true,
+      "permiteAgendamiento": false,
+      "permiteHorasExtras": false
+    }
+  ],
+  "users": [
+    {
+      "id": "u1",
+      "email": "admin@gardenclub.py",
+      "nombre": "Administrador",
+      "rol": "admin",
+      "passwordHash": "$2a$10$k66ediWEaWC/.S3ZAqoTBut9Ikl5KU9fHITITzn6pIE6vkt57vZM.",
+      "activo": true,
+      "fechaCreacion": "2025-09-16T02:06:24.318Z"
+    },
+    {
+      "id": "u2",
+      "email": "caja@gardenclub.py",
+      "nombre": "Usuario Caja",
+      "rol": "caja",
+      "passwordHash": "$2a$10$lurEB4LXeQUVCqxjphGHLOuztaUQeIgYKcljW1kidU3gagbsvkIwm",
+      "activo": true,
+      "fechaCreacion": "2025-09-16T02:06:24.502Z"
+    },
+    {
+      "id": "u3",
+      "email": "porteria@gardenclub.py",
+      "nombre": "Portero",
+      "rol": "porteria",
+      "passwordHash": "$2a$10$k66ediWEaWC/.S3ZAqoTBut9Ikl5KU9fHITITzn6pIE6vkt57vZM.",
+      "activo": true,
+      "fechaCreacion": "2025-09-16T02:06:24.686Z"
+    }
+  ],
+  "collectors": [
+    {
+      "id": "c1",
+      "codigo": "COB-001",
+      "nombres": "María",
+      "apellidos": "Gonzalez",
+      "ci": "3456789",
+      "telefono": "0981-123456",
+      "celular": "0981-123456",
+      "direccion": "Asunción",
+      "email": "maria.gonzalez@email.com",
+      "formaPago": "transferencia",
+      "cuentaBanco": "Ueno Bank: 5357516",
+      "activo": true,
+      "fechaIngreso": "2024-01-15",
+      "tipoCobrador": "EXTERNO",
+      "comisionPorDefecto": 12.5,
+      "formasPago": [
+        "transferencia"
+      ]
+    },
+    {
+      "id": "c2",
+      "codigo": "COB-002",
+      "nombres": "Carlos",
+      "apellidos": "Rodríguez",
+      "ci": "4567890",
+      "telefono": "0985-654321",
+      "celular": "0985-654321",
+      "direccion": "Luque",
+      "email": "carlos.rodriguez@email.com",
+      "formaPago": "efectivo",
+      "activo": true,
+      "fechaIngreso": "2024-02-01",
+      "tipoCobrador": "EXTERNO",
+      "comisionPorDefecto": 12.5,
+      "cuentaBanco": ""
+    },
+    {
+      "id": "OAR7-0LMxDL0Dr9VUQkc9",
+      "codigo": "COB-003",
+      "activo": true,
+      "fechaIngreso": "2025-10-20",
+      "nombres": "Garden Club",
+      "apellidos": "",
+      "ci": "",
+      "telefono": "",
+      "celular": "",
+      "direccion": "",
+      "email": "",
+      "tipoCobrador": "CLUB",
+      "formaPago": "efectivo",
+      "cuentaBanco": ""
+    }
+  ],
+  "families": [
+    {
+      "id": "bxE9J7pFSByJZfgTKFMJm",
+      "grupoFamiliarId": "FAM-M7Dn",
+      "socioTitularId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "nombres": "Carlos",
+      "apellidos": "German",
+      "ci": "4372778",
+      "parentesco": "Hijo/a",
+      "nacimiento": "1993-11-21",
+      "telefono": "09823493628",
+      "email": "carlos09santa@hotmail.com",
+      "activo": true,
+      "fechaCreacion": "2025-10-21T14:37:56.579Z"
+    }
+  ],
+  "financing": [],
+  "commissionPayments": [
+    {
+      "id": "CP-000001",
+      "cobradorId": "c1",
+      "fecha": "2025-10-18",
+      "monto": 12000,
+      "concepto": "Liquidación de comisiones - 2025-10 (1 pago)",
+      "formaPago": "efectivo",
+      "periodo": "2025-10",
+      "paymentIds": [
+        "PAY-000223"
+      ],
+      "numeroRecibo": "aa",
+      "observaciones": "a"
+    },
+    {
+      "id": "CP-000002",
+      "cobradorId": "c2",
+      "fecha": "2025-10-18",
+      "monto": 100000,
+      "concepto": "Liquidación de comisiones - 2025-10 (1 pago)",
+      "formaPago": "efectivo",
+      "periodo": "2025-10",
+      "paymentIds": [
+        "PAY-000228"
+      ],
+      "numeroRecibo": "",
+      "observaciones": ""
+    }
+  ],
+  "movements": [
+    {
+      "id": "MOV-000348",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21",
+      "concepto": "Cuota de Ingreso",
+      "tipo": "DEBIT",
+      "monto": 15000000,
+      "origen": "SERVICIO",
+      "refId": "s2",
+      "observaciones": "Cuota de ingreso aplicada automáticamente al crear el socio",
+      "vencimiento": "2025-10-25",
+      "createdAt": "2025-10-21T13:24:49.000Z",
+      "paidAmount": 5000000,
+      "status": "PARCIAL",
+      "allocations": [
+        {
+          "paymentId": "PAY-000234",
+          "creditMovementId": "5NI-WCgi9eId70vp2cOb6",
+          "amount": 5000000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000349",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-02",
+      "concepto": "Cuota Social Mensual - Octubre 2025",
+      "tipo": "DEBIT",
+      "monto": 150000,
+      "origen": "SERVICIO",
+      "refId": "s1",
+      "serviceId": "s1",
+      "tipoServicio": "MENSUAL",
+      "observaciones": "Mes de octubre 2025",
+      "vencimiento": "2025-11-06",
+      "metadata": {
+        "generationType": "ANNUAL_BATCH",
+        "batchYear": 2025,
+        "batchId": "BATCH-2025-1761053188562",
+        "monthNumber": 10,
+        "monthCode": "2025-10"
+      },
+      "createdAt": "2025-10-21T13:26:28.000Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000350",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-11-01T12:00:00.000Z",
+      "concepto": "Cuota Social Mensual - Noviembre 2025",
+      "tipo": "DEBIT",
+      "monto": 150000,
+      "origen": "SERVICIO",
+      "refId": "s1",
+      "serviceId": "s1",
+      "tipoServicio": "MENSUAL",
+      "observaciones": "Mes de noviembre 2025",
+      "vencimiento": "2025-11-30T12:00:00.000Z",
+      "metadata": {
+        "generationType": "ANNUAL_BATCH",
+        "batchYear": 2025,
+        "batchId": "BATCH-2025-1761053188562",
+        "monthNumber": 11,
+        "monthCode": "2025-11"
+      },
+      "createdAt": "2025-10-21T13:26:28.000Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000351",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-12-03",
+      "concepto": "Cuota Social Mensual - Diciembre 2025",
+      "tipo": "DEBIT",
+      "monto": 150000,
+      "origen": "SERVICIO",
+      "refId": "s1",
+      "serviceId": "s1",
+      "tipoServicio": "MENSUAL",
+      "observaciones": "Mes de diciembre 2025",
+      "vencimiento": "2025-12-03",
+      "metadata": {
+        "generationType": "ANNUAL_BATCH",
+        "batchYear": 2025,
+        "batchId": "BATCH-2025-1761053188562",
+        "monthNumber": 12,
+        "monthCode": "2025-12"
+      },
+      "createdAt": "2025-10-21T13:26:28.000Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000352",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21",
+      "concepto": "HIDROGYM (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 120000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-m57iubgt1",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-21",
+      "createdAt": "2025-10-21T04:47:46.000Z",
+      "paidAmount": 120000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000232",
+          "creditMovementId": "7jzVT5JxzRG7PLrnAIhB7",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "7jzVT5JxzRG7PLrnAIhB7",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "concepto": "Pago contado: HIDROGYM",
+      "tipo": "CREDIT",
+      "monto": 120000,
+      "origen": "PAGO",
+      "refId": "PAY-000232",
+      "allocations": [
+        {
+          "debitId": "MOV-000352",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000353",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "concepto": "HIDROGYM (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 120000,
+      "origen": "SERVICIO",
+      "refId": "srv-1758646234538-m57iubgt1",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-11-21T12:00:00.000Z",
+      "createdAt": "2025-10-21T05:12:19.000Z",
+      "paidAmount": 120000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000233",
+          "creditMovementId": "YwLL0EpcI94lSvrx2Lgxl",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "YwLL0EpcI94lSvrx2Lgxl",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "concepto": "Pago contado: HIDROGYM",
+      "tipo": "CREDIT",
+      "monto": 120000,
+      "origen": "PAGO",
+      "refId": "PAY-000233",
+      "allocations": [
+        {
+          "debitId": "MOV-000353",
+          "amount": 120000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000354",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-21T12:00:00.000Z",
+      "createdAt": "2025-10-21T05:47:23.000Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000235",
+          "creditMovementId": "8Dkgmi-Qc9TTwL52a8igX",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000355",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Servicio a crédito | Anulado por cancelación de Reserva #RES-000078 el 2025-10-21",
+      "vencimiento": "2025-11-22",
+      "createdAt": "2025-10-21T05:47:23.000Z",
+      "paidAmount": 800000,
+      "status": "ANULADO",
+      "cancelledDueToReservationId": "RES-000078"
+    },
+    {
+      "id": "MOV-000356",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-21T12:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Servicio a crédito",
+      "vencimiento": "2025-10-21T12:00:00.000Z",
+      "createdAt": "2025-10-21T05:47:23.000Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000357",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-22",
+      "concepto": "Nota de Crédito por cancelación de Reserva #RES-000078",
+      "tipo": "CREDIT",
+      "monto": 800000,
+      "origen": "AJUSTE",
+      "refId": "RES-000078",
+      "observaciones": "Nota de crédito emitida para anulación contable de reserva.",
+      "status": "CANCELADO",
+      "paidAmount": 800000,
+      "allocations": [
+        {
+          "debitId": "MOV-000355",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "5NI-WCgi9eId70vp2cOb6",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-25T12:00:00.000Z",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 5000000,
+      "origen": "PAGO",
+      "refId": "PAY-000234",
+      "allocations": [
+        {
+          "debitId": "MOV-000348",
+          "amount": 5000000
+        }
+      ]
+    },
+    {
+      "id": "8Dkgmi-Qc9TTwL52a8igX",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "concepto": "Pago de 1 débito pendiente",
+      "tipo": "CREDIT",
+      "monto": 800000,
+      "origen": "PAGO",
+      "refId": "PAY-000235",
+      "allocations": [
+        {
+          "debitId": "MOV-000354",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000358",
+      "memberId": "UutkQJSxMSFf1wRoD3q22",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "concepto": "Cuota de Ingreso",
+      "tipo": "DEBIT",
+      "monto": 15000000,
+      "origen": "SERVICIO",
+      "refId": "s2",
+      "observaciones": "Cuota de ingreso aplicada automáticamente al crear el socio",
+      "vencimiento": "2025-10-22T12:00:00.000Z",
+      "createdAt": "2025-10-22T13:56:54.000Z",
+      "paidAmount": 0,
+      "status": "PENDIENTE"
+    },
+    {
+      "id": "MOV-000359",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "concepto": "Alquiler Salón Social",
+      "tipo": "DEBIT",
+      "monto": 800000,
+      "origen": "SERVICIO",
+      "refId": "s5",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-10-22T12:00:00.000Z",
+      "createdAt": "2025-10-22T14:25:37.000Z",
+      "paidAmount": 800000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000236",
+          "creditMovementId": "r8egGzrGacCrWbrLNauVD",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "r8egGzrGacCrWbrLNauVD",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "concepto": "Pago contado: Alquiler Salón Social",
+      "tipo": "CREDIT",
+      "monto": 800000,
+      "origen": "PAGO",
+      "refId": "PAY-000236",
+      "allocations": [
+        {
+          "debitId": "MOV-000359",
+          "amount": 800000
+        }
+      ]
+    },
+    {
+      "id": "MOV-000360",
+      "memberId": "UutkQJSxMSFf1wRoD3q22",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "concepto": "Tenis (MENSUAL)",
+      "tipo": "DEBIT",
+      "monto": 100000,
+      "origen": "SERVICIO",
+      "refId": "s4",
+      "observaciones": "Pago contado - EFECTIVO",
+      "vencimiento": "2025-11-22T12:00:00.000Z",
+      "createdAt": "2025-10-22T15:33:53.000Z",
+      "paidAmount": 100000,
+      "status": "CANCELADO",
+      "allocations": [
+        {
+          "paymentId": "PAY-000237",
+          "creditMovementId": "WlZk1GOTilWOSKI66x81U",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "WlZk1GOTilWOSKI66x81U",
+      "memberId": "UutkQJSxMSFf1wRoD3q22",
+      "fecha": "2025-10-22T12:00:00.000Z",
+      "concepto": "Pago contado: Tenis",
+      "tipo": "CREDIT",
+      "monto": 100000,
+      "origen": "PAGO",
+      "refId": "PAY-000237",
+      "allocations": [
+        {
+          "debitId": "MOV-000360",
+          "amount": 100000
+        }
+      ]
+    }
+  ],
+  "attachments": [],
+  "sequences": {
+    "member": 14,
+    "payment": 237,
+    "collector": 3,
+    "family": 2,
+    "financing": 0,
+    "commission": 2,
+    "movement": 360,
+    "subscription": 26,
+    "reservation": 81,
+    "cancellationPolicy": 3
+  },
+  "categories": [
+    {
+      "id": "AmwwMIn7FMMf0UfHaypRf",
+      "nombre": "Deportes"
+    },
+    {
+      "id": "kcIEE64AbsCqkLijnBjzB",
+      "nombre": "Alquileres"
+    },
+    {
+      "id": "dw7-gjAY5RQiVwOtPQN0Y",
+      "nombre": "Otros"
+    },
+    {
+      "id": "cat-1758646234536-udnz57tpq",
+      "nombre": "OTROS",
+      "activo": true
+    },
+    {
+      "id": "cat-1758646234537-rwi4i3daf",
+      "nombre": "ALQUILER",
+      "activo": true
+    }
+  ],
+  "memberSubscriptions": [
+    {
+      "id": "SUB-000026",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "serviceId": "srv-1758646234538-m57iubgt1",
+      "price": 120000,
+      "periodicity": "MENSUAL",
+      "cadenceDays": 30,
+      "autoDebit": false,
+      "status": "ACTIVE",
+      "startDate": "2025-10-21",
+      "nextChargeDate": "2025-11-22",
+      "notes": "Creado desde formulario unificado el 2025-10-21",
+      "updatedAt": "2025-10-21T17:12:19.926Z"
+    }
+  ],
+  "reservations": [
+    {
+      "id": "RES-000064",
+      "resourceId": "cancha-1",
+      "memberId": "12345",
+      "start": "2024-10-20T10:00:00.000Z",
+      "end": "2024-10-20T11:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Test Usuario",
+      "contacto": "Sin especificar",
+      "medioContacto": "presencial",
+      "adelanto": 0,
+      "montoTotal": 0,
+      "status": "CULMINADO",
+      "notas": "",
+      "createdBy": "system",
+      "createdAt": "2025-10-17T12:41:03.495Z",
+      "updatedAt": "2025-10-17T12:41:04.560Z",
+      "pagos": []
+    },
+    {
+      "id": "RES-000077",
+      "resourceId": "servicio-s5",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "start": "2025-10-22T22:00:00.000Z",
+      "end": "2025-10-22T22:30:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Jose Domingo Enciso Caceres",
+      "contacto": "0981123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 800000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementIds": [
+        "MOV-000354"
+      ],
+      "debitMovementId": "MOV-000354",
+      "acontecimiento": "15_anos",
+      "quinceaneraFocusNombre": "1",
+      "cantidadPersonas": 1,
+      "requiereApa": true,
+      "apaEstado": "APROBADO",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-21T17:47:23.376Z",
+      "updatedAt": "2025-10-22T15:48:28.171Z",
+      "pagos": [],
+      "apaObservaciones": "",
+      "apaFechaRevision": "2025-10-22T15:48:28.171Z",
+      "apaComprobante": "/uploads/apa/apa-RES-000077-1761148089665.pdf",
+      "apaFechaEntrega": "2025-10-22T15:48:09.669Z"
+    },
+    {
+      "id": "RES-000078",
+      "resourceId": "servicio-s5",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "start": "2025-10-21T22:45:00.000Z",
+      "end": "2025-10-21T23:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Jose Domingo Enciso Caceres",
+      "contacto": "0981123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 800000,
+      "status": "CANCELADO",
+      "notas": "",
+      "debitMovementIds": [
+        "MOV-000355"
+      ],
+      "debitMovementId": "MOV-000355",
+      "acontecimiento": "15_anos",
+      "quinceaneraFocusNombre": "a",
+      "requiereApa": true,
+      "apaEstado": "PENDIENTE",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-21T17:47:23.411Z",
+      "updatedAt": "2025-10-21T17:59:03.079Z",
+      "pagos": [],
+      "cancelledAt": "2025-10-21T17:59:03.079Z",
+      "cancelledBy": "admin@gardenclub.py",
+      "cancelReason": "Cancelado por decision del socio",
+      "refundType": "NINGUNO",
+      "refundAmount": 0,
+      "penaltyAmount": 0,
+      "refundMovementIds": [
+        "MOV-000357"
+      ]
+    },
+    {
+      "id": "RES-000079",
+      "resourceId": "servicio-s5",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "start": "2025-10-22T20:00:00.000Z",
+      "end": "2025-10-22T21:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Jose Domingo Enciso Caceres",
+      "contacto": "0981123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 800000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementIds": [
+        "MOV-000356"
+      ],
+      "debitMovementId": "MOV-000356",
+      "acontecimiento": "cumpleanos",
+      "cumpleaneroNombre": "qaa",
+      "cantidadPersonas": 1,
+      "requiereApa": true,
+      "apaEstado": "APROBADO",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-21T17:47:23.444Z",
+      "updatedAt": "2025-10-22T15:48:22.199Z",
+      "pagos": [],
+      "apaObservaciones": "",
+      "apaFechaRevision": "2025-10-22T15:48:22.199Z",
+      "horaExtra": false,
+      "esParaTercero": false,
+      "apaComprobante": "/uploads/apa/apa-RES-000079-1761148059304.pdf",
+      "apaFechaEntrega": "2025-10-22T15:47:39.310Z"
+    },
+    {
+      "id": "RES-000080",
+      "resourceId": "servicio-s5",
+      "memberId": "uCZtTI1ZWfG7GQsvW5TdH",
+      "start": "2025-10-23T22:00:00.000Z",
+      "end": "2025-10-24T06:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Jose Domingo Enciso Caceres",
+      "contacto": "0981123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 800000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementIds": [
+        "MOV-000359"
+      ],
+      "debitMovementId": "MOV-000359",
+      "acontecimiento": "boda",
+      "noviosNombres": "Leticia y Julio",
+      "requiereApa": true,
+      "apaEstado": "RECHAZADO",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-22T14:25:37.949Z",
+      "updatedAt": "2025-10-22T14:48:04.382Z",
+      "pagos": [],
+      "apaObservaciones": "rechazado",
+      "apaFechaRevision": "2025-10-22T14:48:04.382Z"
+    },
+    {
+      "id": "RES-000081",
+      "resourceId": "espacio-s4-0",
+      "memberId": "UutkQJSxMSFf1wRoD3q22",
+      "start": "2025-10-22T22:00:00.000Z",
+      "end": "2025-10-23T02:00:00.000Z",
+      "invitados": 0,
+      "nombreContacto": "Carlos Santacruz",
+      "contacto": "0981123456",
+      "medioContacto": "whatsapp",
+      "adelanto": 0,
+      "montoTotal": 100000,
+      "status": "ACTIVO",
+      "notas": "",
+      "debitMovementIds": [
+        "MOV-000360"
+      ],
+      "debitMovementId": "MOV-000360",
+      "acontecimiento": "otros",
+      "otrosDescripcion": "Junta entre amigos",
+      "otrosNombrePersona": "Fabricio",
+      "requiereApa": true,
+      "apaEstado": "APROBADO",
+      "createdBy": "admin@gardenclub.py",
+      "createdAt": "2025-10-22T15:33:53.857Z",
+      "updatedAt": "2025-10-22T15:48:32.140Z",
+      "pagos": [],
+      "apaObservaciones": "",
+      "apaFechaRevision": "2025-10-22T15:48:32.140Z"
+    }
+  ],
+  "resources": [],
+  "refinancings": [],
+  "cancellationPolicies": [
+    {
+      "id": "CP-1",
+      "nombre": "Política Estándar 50%",
+      "descripcion": "Se retiene el 50% del monto total como seña no reembolsable en cualquier momento.",
+      "rules": [
+        {
+          "diasAntes": 0,
+          "porcentajeReembolsable": 50
+        }
+      ],
+      "activo": true,
+      "aplicaPorDefecto": true,
+      "createdAt": "2025-10-16T14:47:16.513Z",
+      "updatedAt": "2025-10-16T14:47:16.513Z"
+    },
+    {
+      "id": "CP-2",
+      "nombre": "Sin Reembolso",
+      "descripcion": "No se realiza ningún reembolso una vez confirmada la reserva. 100% no reembolsable.",
+      "rules": [
+        {
+          "diasAntes": 0,
+          "porcentajeReembolsable": 0
+        }
+      ],
+      "activo": true,
+      "aplicaPorDefecto": false,
+      "createdAt": "2025-10-16T14:47:16.513Z",
+      "updatedAt": "2025-10-16T14:47:16.513Z"
+    },
+    {
+      "id": "CP-3",
+      "nombre": "Cancelación por Club",
+      "descripcion": "Reembolso del 100% cuando la cancelación es responsabilidad del club (mantenimiento, emergencia, etc.).",
+      "rules": [
+        {
+          "diasAntes": 0,
+          "porcentajeReembolsable": 100
+        }
+      ],
+      "activo": true,
+      "aplicaPorDefecto": false,
+      "createdAt": "2025-10-16T14:47:16.513Z",
+      "updatedAt": "2025-10-16T14:47:16.513Z"
+    }
+  ]
+}

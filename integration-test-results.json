@@ -1,0 +1,22 @@
+{
+  "testDate": "2025-09-23T20:41:41.431Z",
+  "totalMembers": 3,
+  "totalServices": 22,
+  "serviceTypes": {
+    "MENSUAL": 9,
+    "UNICO": 9,
+    "DIARIO": 4
+  },
+  "differentialPricingServices": 22,
+  "testsPerformed": 8,
+  "testsPassed": 8,
+  "status": "ALL_PASSED",
+  "features": [
+    "Differential pricing for socios/no-socios",
+    "DIARIO services with daily subscriptions",
+    "Automatic member code assignment",
+    "No-socio to socio conversion",
+    "Complete payment flow integration",
+    "Auto-debit system compatibility"
+  ]
+}
