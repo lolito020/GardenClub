@@ -375,6 +375,21 @@ export interface DbSchema {
 let dbPromise: ReturnType<typeof JSONFilePreset<DbSchema>>;
 
 function ensureDataDir() {
+  // Use explicit DB_JSON if provided
+  if (process.env.DB_JSON) {
+    const p = process.env.DB_JSON;
+    const dir = path.dirname(p);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return p;
+  }
+
+  // If running on Vercel (serverless), use /tmp which is writable (ephemeral)
+  if (process.env.VERCEL) {
+    const dir = path.join('/tmp', 'data');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return path.join(dir, 'db.json');
+  }
+
   const dir = path.join(process.cwd(), 'data');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   return path.join(dir, 'db.json');
