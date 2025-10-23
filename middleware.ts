@@ -1,65 +1,70 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
-  try {
-    console.log(`[Middleware] Processing request for: ${pathname}`);
-    
-    // Check setup mode by calling the API route instead of importing Node.js modules
-    const checkUrl = new URL('/api/users/check', request.url);
-    const response = await fetch(checkUrl.toString());
-    
-    if (!response.ok) {
-      console.error('[Middleware] Failed to check setup mode, assuming setup mode');
-      // In case of error, assume setup mode and redirect to admin
-      if (pathname === '/' || pathname === '/login') {
-        console.log('[Middleware] Error occurred, redirecting to /admin');
-        return NextResponse.redirect(new URL('/admin', request.url));
-      }
-      return NextResponse.next();
-    }
-    
-    const data = await response.json();
-    const setupMode = data.userCount === 0;
-    
-    console.log(`[Middleware] Setup mode: ${setupMode}, User count: ${data.userCount}`);
-    
-    // Si estamos en modo setup (sin usuarios)
-    if (setupMode) {
-      console.log('[Middleware] In setup mode');
-      // Redirigir / y /login a /admin
-      if (pathname === '/' || pathname === '/login') {
-        console.log(`[Middleware] Redirecting ${pathname} to /admin (setup mode)`);
-        return NextResponse.redirect(new URL('/admin', request.url));
-      }
-      // Permitir acceso a todas las demás rutas en modo setup
-      console.log(`[Middleware] Allowing access to ${pathname} in setup mode`);
-      return NextResponse.next();
-    }
-    
-    // Si NO estamos en modo setup (hay usuarios)
-    console.log('[Middleware] Not in setup mode (users exist)');
-    // Redirigir / a /login
-    if (pathname === '/') {
-      console.log('[Middleware] Redirecting / to /login (normal mode)');
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    
-    console.log(`[Middleware] Allowing access to ${pathname}`);
-    return NextResponse.next();
-  } catch (error) {
-    console.error('[Middleware] Error occurred:', error);
-    // En caso de error, asumir modo setup y redirigir a admin
-    if (pathname === '/' || pathname === '/login') {
-      console.log('[Middleware] Error fallback, redirecting to /admin');
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-    return NextResponse.next();
-  }
-}
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export const config = {
-  matcher: ['/', '/login']
-};
+  // Aplica solo a / y /login (deja fuera _next, api, etc.)
+  matcher: ['/', '/login'],
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // ✅ Nunca interceptar assets ni APIs (defensa adicional)
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml'
+  ) {
+    return NextResponse.next()
+  }
+
+  try {
+    // Chequear modo setup mediante la API
+    const checkUrl = new URL('/api/users/check', request.url)
+    const res = await fetch(checkUrl.toString(), { cache: 'no-store' })
+
+    if (!res.ok) {
+      // ❗ Si falla la API, NO redirijas /login. Deja pasar /login.
+      if (pathname === '/') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        return NextResponse.redirect(url)
+      }
+      return NextResponse.next()
+    }
+
+    const data = await res.json()
+    const setupMode = data.userCount === 0
+
+    if (setupMode) {
+      // En setup: / y /login → /admin
+      if (pathname === '/' || pathname === '/login') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/admin'
+        return NextResponse.redirect(url)
+      }
+      return NextResponse.next()
+    }
+
+    // No setup: / → /login, pero /login debe cargar
+    if (pathname === '/') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+
+    // Si ya estás en /login, permitir
+    return NextResponse.next()
+  } catch {
+    // ❗ Fallback seguro: nunca redirigir /login en error
+    if (pathname === '/') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    return NextResponse.next()
+  }
+}
